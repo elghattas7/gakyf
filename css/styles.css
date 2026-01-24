@@ -162,8 +162,7 @@ html[dir="rtl"] body {
     background: white;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
+    overflow-x: auto;
 }
 
 .table-modern {
