@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="financial_dashboard">Tableau de Bord Financier - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="financial_dashboard">Tableau de Bord Financier</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="financial_dashboard_subtitle">Vue d'ensemble des finances
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="btn btn-secondary py-1 px-3 text-sm flex items-center"
+                        onclick="financialDashboard.exportSummary()">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        <span data-i18n="export_summary">Exporter le Résumé</span>
+                    </button>
+                    <select id="periodFilter" class="input-modern py-1 px-3 text-sm"
+                        onchange="financialDashboard.loadData()">
+                        <option value="month" data-i18n="this_month">Ce mois</option>
+                        <option value="quarter" data-i18n="this_quarter">Ce trimestre</option>
+                        <option value="year" selected data-i18n="this_year">Cette année</option>
+                        <option value="all" data-i18n="all_time">Tout</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600" data-i18n="total_donations">Total Dons</p>
+                            <p class="text-2xl font-bold text-green-600" id="totalDonations">0 DH</p>
+                            <p class="text-xs text-gray-500 mt-1" id="donationsChange">+0%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600" data-i18n="total_aids">Total Aides</p>
+                            <p class="text-2xl font-bold text-blue-600" id="totalAids">0 DH</p>
+                            <p class="text-xs text-gray-500 mt-1" id="aidsChange">+0%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600" data-i18n="balance">Solde</p>
+                            <p class="text-2xl font-bold text-purple-600" id="balance">0 DH</p>
+                            <p class="text-xs text-gray-500 mt-1" data-i18n="donations_minus_aids">Dons - Aides</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600" data-i18n="total_donors">Total Donateurs</p>
+                            <p class="text-2xl font-bold text-orange-600" id="totalDonors">0</p>
+                            <p class="text-xs text-gray-500 mt-1" id="donorsChange">+0%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="monthly_trend">Évolution Mensuelle</h3>
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="donations_by_nature">Dons par Nature
+                    </h3>
+                    <canvas id="donationsByNatureChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="card p-6 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="top_donors">Top 10 Donateurs</h3>
+                    <div id="topDonorsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+    <!-- Export Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/arabic-reshaper@2.1.6/arabic-reshaper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bidi-js@1.0.3/dist/bidi.min.js"></script>
+    <script src="js/pdf-fonts.js"></script>
+    <script src="js/export-utils.js"></script>
+
+    <script>
+        const financialDashboard = {
+            charts: {},
+            data: {},
+
+            async init() {
+                await auth.protectPage();
+                await layout.initLayout('financial-dashboard.html');
+                await this.loadData();
+            },
+
+            async loadData() {
+                utils.showLoader();
+                try {
+                    const period = document.getElementById('periodFilter').value;
+                    const dateFilter = this.getDateFilter(period);
+
+                    // Load donations
+                    let donQuery = supabase.from('dons').select('*');
+                    if (dateFilter) {
+                        donQuery = donQuery.gte('date_don', dateFilter);
+                    }
+                    const { data: donations } = await donQuery;
+
+                    // Load aids
+                    let aidQuery = supabase.from('aides').select('*');
+                    if (dateFilter) {
+                        aidQuery = aidQuery.gte('date_aide', dateFilter);
+                    }
+                    const { data: aids } = await aidQuery;
+
+                    this.data.donations = donations || [];
+                    this.data.aids = aids || [];
+
+                    this.updateKPIs();
+                    this.renderCharts();
+                } catch (e) {
+                    console.error('Error loading data:', e);
+                    utils.showNotification('Erreur lors du chargement des données', 'error');
+                } finally {
+                    utils.hideLoader();
+                }
+            },
+
+            getDateFilter(period) {
+                const now = new Date();
+                if (period === 'month') {
+                    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return start.toISOString();
+                } else if (period === 'quarter') {
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    const start = new Date(now.getFullYear(), quarter * 3, 1);
+                    return start.toISOString();
+                } else if (period === 'year') {
+                    const start = new Date(now.getFullYear(), 0, 1);
+                    return start.toISOString();
+                }
+                return null; // all time
+            },
+
+            updateKPIs() {
+                let totalDonsEuro = 0;
+
+                // Calcul Dons en Euro
+                this.data.donations.forEach(d => {
+                    const amt = Number(d.montant) || 0;
+                    if (d.devise === 'EUR' || d.devise === '€') {
+                        totalDonsEuro += amt;
+                    } else {
+                        totalDonsEuro += (amt / 10);
+                    }
+                });
+
+                // Calcul Aides en Euro (DH / 10 par défaut)
+                // On suppose que les aides sont en DH
+                const totalAidsDH = this.data.aids.reduce((sum, a) => sum + (Number(a.montant) || 0), 0);
+                const totalAidsEuro = totalAidsDH / 10;
+
+                const uniqueDonors = new Set(this.data.donations.map(d => d.nom_donateur)).size;
+                const soldeEuro = totalDonsEuro - totalAidsEuro;
+
+                document.getElementById('totalDonations').textContent = utils.formatCurrency(totalDonsEuro, 'EUR');
+                document.getElementById('totalAids').textContent = utils.formatCurrency(totalAidsEuro, 'EUR');
+                document.getElementById('balance').textContent = utils.formatCurrency(soldeEuro, 'EUR');
+                document.getElementById('totalDonors').textContent = uniqueDonors;
+            },
+
+            renderCharts() {
+                this.renderMonthlyTrend();
+                this.renderDonationsByNature();
+                this.renderTopDonors();
+            },
+
+            renderMonthlyTrend() {
+                const months = {};
+                // Process donations
+                this.data.donations.forEach(d => {
+                    if (!d.date_don) return;
+                    const date = new Date(d.date_don);
+                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!months[key]) months[key] = { dons: 0, aides: 0 };
+
+                    let amt = Number(d.montant) || 0;
+                    if (d.devise !== 'EUR' && d.devise !== '€') {
+                        amt = amt / 10;
+                    }
+                    months[key].dons += amt;
+                });
+                // Process aids (Convert DH to EUR /10)
+                this.data.aids.forEach(a => {
+                    if (!a.date_aide) return;
+                    const date = new Date(a.date_aide);
+                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!months[key]) months[key] = { dons: 0, aides: 0 };
+                    months[key].aides += (Number(a.montant) || 0) / 10;
+                });
+
+                const sortedKeys = Object.keys(months).sort();
+                const labels = sortedKeys.map(k => {
+                    const [y, m] = k.split('-');
+                    return new Date(y, m - 1).toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' });
+                });
+
+                const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+                if (this.charts.monthlyTrend) this.charts.monthlyTrend.destroy();
+                this.charts.monthlyTrend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: i18n.t('donations') || 'Dons',
+                                data: sortedKeys.map(k => months[k].dons),
+                                borderColor: '#10B981',
+                                backgroundColor: '#10B98122',
+                                fill: true,
+                                tension: 0.3
+                            },
+                            {
+                                label: i18n.t('aids') || 'Aides',
+                                data: sortedKeys.map(k => months[k].aides),
+                                borderColor: '#3B82F6',
+                                backgroundColor: '#3B82F622',
+                                fill: true,
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'top' } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            },
+
+            renderDonationsByNature() {
+                const natures = {};
+                this.data.donations.forEach(d => {
+                    const nature = d.nature_don || 'Autre';
+                    let amt = Number(d.montant) || 0;
+                    if (d.devise !== 'EUR' && d.devise !== '€') {
+                        amt = amt / 10;
+                    }
+                    natures[nature] = (natures[nature] || 0) + amt;
+                });
+
+                const ctx = document.getElementById('donationsByNatureChart').getContext('2d');
+                if (this.charts.nature) this.charts.nature.destroy();
+                this.charts.nature = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(natures),
+                        datasets: [{
+                            data: Object.values(natures),
+                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            },
+
+            renderTopDonors() {
+                const donorTotals = {};
+                this.data.donations.forEach(d => {
+                    const name = d.nom_donateur || 'Anonyme';
+                    let amt = Number(d.montant) || 0;
+                    if (d.devise !== 'EUR' && d.devise !== '€') {
+                        amt = amt / 10; // Convert local to Euro
+                    }
+                    donorTotals[name] = (donorTotals[name] || 0) + amt;
+                });
+
+                const sorted = Object.entries(donorTotals)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10);
+
+                const html = sorted.map(([name, amount], index) => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                ${index + 1}
+                            </span>
+                            <span class="font-medium text-gray-800">${name}</span>
+                        </div>
+                        <span class="font-bold text-green-600">${utils.formatCurrency(amount, 'EUR')}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('topDonorsList').innerHTML = html || '<p class="text-gray-500 text-center">Aucune donnée</p>';
+            },
+
+            async exportSummary() {
+                const format = await exportUtils.promptExportFormat();
+                if (!format) return;
+
+                const period = document.getElementById('periodFilter').value;
+                const periodText = i18n.t(`this_${period}`) || period;
+                const title = `${i18n.t('financial_summary') || 'Résumé Financier'} - ${periodText}`;
+
+                // Calculate KPI values
+                let totalDonsEuro = 0;
+                this.data.donations.forEach(d => {
+                    const amt = Number(d.montant) || 0;
+                    if (d.devise === 'EUR' || d.devise === '€') totalDonsEuro += amt;
+                    else totalDonsEuro += (amt / 10);
+                });
+
+                const totalAidsDH = this.data.aids.reduce((sum, a) => sum + (Number(a.montant) || 0), 0);
+                const totalAidsEuro = totalAidsDH / 10;
+                const uniqueDonors = new Set(this.data.donations.map(d => d.nom_donateur)).size;
+                const soldeEuro = totalDonsEuro - totalAidsEuro;
+
+                const kpiData = [
+                    [i18n.t('total_donations') || 'Total Dons', utils.formatCurrency(totalDonsEuro, 'EUR')],
+                    [i18n.t('total_aids') || 'Total Aides', utils.formatCurrency(totalAidsEuro, 'EUR')],
+                    [i18n.t('balance') || 'Solde', utils.formatCurrency(soldeEuro, 'EUR')],
+                    [i18n.t('total_donors') || 'Total Donateurs', String(uniqueDonors)]
+                ];
+
+                if (format === 'pdf') {
+                    const { doc, isArabic, processText, startY, pdfFont } = exportUtils.initPdf({ title });
+
+                    // 1. KPI Table
+                    doc.autoTable({
+                        startY: startY,
+                        head: [[processText(i18n.t('indicator') || 'Indicateur'), processText(i18n.t('value') || 'Valeur')]],
+                        body: kpiData.map(row => [processText(row[0]), processText(row[1])]),
+                        theme: 'grid',
+                        styles: { font: pdfFont, halign: isArabic ? 'right' : 'left' },
+                        headStyles: { fillColor: [59, 130, 246] }
+                    });
+
+                    let finalY = doc.lastAutoTable.finalY + 15;
+
+                    // 2. Top Donors Table
+                    doc.setFontSize(14);
+                    doc.setTextColor(30, 64, 175);
+                    doc.text(processText(i18n.t('top_donors') || 'Top 10 Donateurs'), isArabic ? doc.internal.pageSize.getWidth() - 14 : 14, finalY, { align: isArabic ? 'right' : 'left' });
+
+                    const donorHeaders = [
+                        i18n.t('donor') || 'Donateur',
+                        i18n.t('amount') || 'Montant'
+                    ].map(h => processText(h));
+
+                    const topDonors = Array.from(document.querySelectorAll('#topDonorsList > div')).map(div => {
+                        const name = div.querySelector('.font-medium').textContent.trim();
+                        const amount = div.querySelector('.font-bold').textContent.trim();
+                        return [processText(name), processText(amount)];
+                    });
+
+                    doc.autoTable({
+                        startY: finalY + 5,
+                        head: [isArabic ? donorHeaders.reverse() : donorHeaders],
+                        body: isArabic ? topDonors.map(r => r.reverse()) : topDonors,
+                        theme: 'striped',
+                        styles: { font: pdfFont, halign: isArabic ? 'right' : 'left' },
+                        headStyles: { fillGray: 240, textColor: 0, fontStyle: 'bold' }
+                    });
+
+                    // 3. Charts (New Page)
+                    try {
+                        const trendCanvas = document.getElementById('monthlyTrendChart');
+                        const natureCanvas = document.getElementById('donationsByNatureChart');
+
+                        if (trendCanvas || natureCanvas) {
+                            doc.addPage();
+                            let chartY = 20;
+
+                            if (trendCanvas) {
+                                doc.setFontSize(14);
+                                doc.setTextColor(30, 64, 175);
+                                doc.text(processText(i18n.t('monthly_trend') || 'Évolution Mensuelle'), isArabic ? doc.internal.pageSize.getWidth() - 14 : 14, chartY, { align: isArabic ? 'right' : 'left' });
+                                const imgData = trendCanvas.toDataURL('image/png');
+                                doc.addImage(imgData, 'PNG', 15, chartY + 5, 180, 80);
+                                chartY += 100;
+                            }
+
+                            if (natureCanvas) {
+                                doc.setFontSize(14);
+                                doc.setTextColor(30, 64, 175);
+                                doc.text(processText(i18n.t('donations_by_nature') || 'Dons par Nature'), isArabic ? doc.internal.pageSize.getWidth() - 14 : 14, chartY, { align: isArabic ? 'right' : 'left' });
+                                const imgData = natureCanvas.toDataURL('image/png');
+                                doc.addImage(imgData, 'PNG', 55, chartY + 5, 100, 100);
+                            }
+                        }
+                    } catch (chartError) {
+                        console.error('Error adding charts to PDF:', chartError);
+                    }
+
+                    doc.save(`resume_financier_${period}.pdf`);
+                } else if (format === 'excel') {
+                    exportUtils.exportToExcel([['Indicateur', 'Valeur'], ...kpiData], 'resume_financier', title);
+                } else if (format === 'word') {
+                    await exportUtils.exportToWord([['Indicateur', 'Valeur'], ...kpiData], 'resume_financier', title);
+                }
+            }
+        };
+
+        financialDashboard.init();
+    </script>
+</body>
+
+</html>

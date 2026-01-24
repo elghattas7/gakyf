@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="orphans">Gestion des Orphelins - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Police Inter pour un look moderne -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Export libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <!-- Header de la page -->
+            <div class="flex flex-col items-center text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-2" data-i18n="orphans">Orphelins</h2>
+                <p class="text-gray-500 mb-8 max-w-lg" data-i18n="orphans_list_subtitle">Gérez les dossiers des
+                    orphelins
+                    parrainés</p>
+
+                <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                    <button onclick="window.location.href='orphelin-form.html'"
+                        class="btn btn-primary !py-4 !px-10 !text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                        data-i18n="add_orphan">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        Ajouter un orphelin
+                    </button>
+
+                    <button onclick="orphelinsModule.exportOrphelinsPDF()"
+                        class="btn btn-secondary !py-4 !px-8 shadow-md hover:shadow-lg transition-all"
+                        data-i18n="download_list">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Télécharger la liste
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtres et Recherche -->
+            <div class="card p-5 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </span>
+                            <input type="text" id="searchInput" class="input-modern pl-10"
+                                data-i18n="search_placeholder" placeholder="Rechercher par nom...">
+                        </div>
+                    </div>
+                    <div>
+                        <select id="villeFilter" class="input-modern"
+                            onchange="orphelinsModule.currentFilters.ville = this.value; orphelinsModule.loadOrphelins()">
+                            <option value="" data-i18n="all_cities">Toutes les villes</option>
+                            <!-- Rempli dynamiquement -->
+                        </select>
+                    </div>
+                    <div>
+                        <select id="scolariteFilter" class="input-modern"
+                            onchange="orphelinsModule.currentFilters.scolarite = this.value; orphelinsModule.loadOrphelins()">
+                            <option value="" data-i18n="all_school_levels">Tous niveaux scolaires</option>
+                            <option value="Préscolaire" data-i18n="preschool">Préscolaire</option>
+                            <option value="primaire" data-i18n="primary">Primaire</option>
+                            <option value="collège" data-i18n="middle_school">Collège</option>
+                            <option value="lycée" data-i18n="high_school">Lycée</option>
+                            <option value="formation professionnelle" data-i18n="vocational">Formation Professionnelle
+                            </option>
+                            <option value="non scolarisé" data-i18n="not_schooled">Non scolarisé</option>
+                        </select>
+                    </div>
+                    <!-- Filtres Age -->
+                    <div class="flex gap-2">
+                        <input type="number" id="ageMin" placeholder="Age Min" class="input-modern w-1/2" min="0"
+                            max="25"
+                            oninput="orphelinsModule.currentFilters.ageMin = this.value; utils.debounce(() => orphelinsModule.loadOrphelins(), 500)()">
+                        <input type="number" id="ageMax" placeholder="Age Max" class="input-modern w-1/2" min="0"
+                            max="25"
+                            oninput="orphelinsModule.currentFilters.ageMax = this.value; utils.debounce(() => orphelinsModule.loadOrphelins(), 500)()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des résultats -->
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th data-i18n="full_name">Nom Complet</th>
+                                <th data-i18n="age_column">Âge</th>
+                                <th data-i18n="sex_column">Sexe</th>
+                                <th data-i18n="level">Niveau Scolaire</th>
+                                <th data-i18n="mother_widow">Mère (Veuve)</th>
+                                <th data-i18n="city">Ville</th>
+                                <th data-i18n="year_column">Année</th>
+                                <th class="text-right" data-i18n="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orphelinsTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center py-8">
+                                    <div class="flex justify-center">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    </div>
+                                    <p class="mt-2 text-gray-500" data-i18n="loading_dots">Chargement...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between"
+                    id="paginationContainer">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PDF & Export Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/logo-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/export-utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script src="js/orphelins.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.orphelinsModule) {
+                orphelinsModule.init();
+            }
+        });
+    </script>
+</body>
+
+</html>

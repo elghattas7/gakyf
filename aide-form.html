@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attribuer Aide - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .beneficiary-type-selector input:checked+div {
+            background-color: #eff6ff;
+            /* blue-50 */
+            border-color: #3b82f6;
+            /* blue-500 */
+            color: #1d4ed8;
+            /* blue-700 */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="assign_aid">Attribuer une Aide</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="new_attribution">Nouvelle attribution pour un bénéficiaire
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="aides.html" class="btn btn-secondary" data-i18n="cancel">Annuler</a>
+                    <button type="button" onclick="document.getElementById('aideForm').requestSubmit()"
+                        class="btn btn-primary" data-i18n="save_btn">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Attribuer
+                    </button>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <form id="aideForm" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Colonne de sélection Bénéficiaire -->
+                    <div class="md:col-span-2 space-y-6">
+
+                        <!-- Type Bénéficiaire -->
+                        <div class="card p-6">
+                            <h3 class="text-sm font-bold text-gray-500 uppercase mb-4 tracking-wide"
+                                data-i18n="beneficiary_type">Type de
+                                Bénéficiaire</h3>
+
+                            <div class="grid grid-cols-2 gap-4 beneficiary-type-selector">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="beneficiary_type" value="veuve" checked class="hidden"
+                                        onchange="toggleBeneficiaryType('veuve')">
+                                    <div
+                                        class="border rounded-lg p-4 text-center hover:bg-gray-50 transition-all border-gray-200">
+                                        <span class="block text-2xl mb-1">👩‍👧‍👦</span>
+                                        <span class="font-bold" data-i18n="widow">Veuve</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="beneficiary_type" value="orphelin" class="hidden"
+                                        onchange="toggleBeneficiaryType('orphelin')">
+                                    <div
+                                        class="border rounded-lg p-4 text-center hover:bg-gray-50 transition-all border-gray-200">
+                                        <span class="block text-2xl mb-1">👶</span>
+                                        <span class="font-bold" data-i18n="orphan">Orphelin</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-1" id="beneficiaryLabel"
+                                    data-i18n="select_widow">Sélectionner la Veuve</label>
+                                <select id="beneficiarySelect" name="beneficiary_id" required class="input-modern">
+                                    <option value="" data-i18n="loading">Chargement...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Détails Attribution -->
+                        <div class="card p-6">
+                            <h3 class="text-sm font-bold text-gray-500 uppercase mb-4 tracking-wide"
+                                data-i18n="attribution_details">Détails Attribution
+                            </h3>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="nature_aide">Nature de l'Aide</label>
+                                    <select name="nature_aide" class="input-modern"
+                                        onchange="toggleAutreAide(this.value)">
+                                        <option value="" data-i18n="select">Sélectionner...</option>
+                                        <option value="Vêtement Aid Al Fitr" data-i18n="aid_fitr">Vêtement Aid Al Fitr
+                                        </option>
+                                        <option value="Al Odhiya" data-i18n="odhiya">Al Odhiya</option>
+                                        <option value="Panier Ramadan" data-i18n="ramadan_basket">Panier Ramadan
+                                        </option>
+                                        <option value="Fourniture scolaire" data-i18n="school_supplies">Fourniture
+                                            scolaire</option>
+                                        <option value="Aide financier mensuel" data-i18n="aide_financier_mensuel">Aide
+                                            financière mensuelle
+                                        </option>
+                                        <option value="Aide financier trimestrielle"
+                                            data-i18n="aide_financier_trimestrielle">Aide financière trimestrielle
+                                        </option>
+                                        <option value="Aide financier semestriel" data-i18n="aide_financier_semestriel">
+                                            Aide financière semestrielle
+                                        </option>
+                                        <option value="Aide financier annuel" data-i18n="aide_financier_annuel">Aide
+                                            financière annuelle
+                                        </option>
+                                        <option value="Zakat" data-i18n="zakat">Zakat</option>
+                                        <option value="Autre" data-i18n="other">Autre</option>
+                                    </select>
+                                    <div id="autreAideDiv" class="hidden mt-2">
+                                        <input type="text" name="autre_nature_aide" placeholder="Précisez..."
+                                            class="input-modern" data-i18n="specify_placeholder">
+                                    </div>
+                                </div>
+                                <!-- Programme d'aide supprimé -->
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1"
+                                            data-i18n="attribution_date">Date
+                                            Attribution</label>
+                                        <input type="date" name="date_attribution" required class="input-modern">
+                                    </div>
+                                    <div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne Montant -->
+                    <div class="space-y-6">
+                        <div
+                            class="card p-6 h-full flex flex-col justify-center items-center bg-gray-50 border-dashed border-2 border-gray-200">
+                            <div class="text-center w-full">
+                                <label class="block text-sm font-medium text-gray-500 mb-2"
+                                    data-i18n="amount_assigned">Montant Attribué</label>
+                                <div class="relative w-full">
+                                    <input type="number" name="montant" required
+                                        class="bg-transparent text-4xl font-bold text-center w-full focus:outline-none text-blue-600"
+                                        placeholder="0.00">
+                                    <span class="block text-sm text-gray-400 mt-1">EURO (€)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2"
+                                data-i18n="notes">Commentaires</label>
+                            <textarea name="remarques" rows="4" class="input-modern text-sm"
+                                placeholder="Notes internes..." data-i18n="notes_placeholder"></textarea>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        let programmes = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await auth.protectPage();
+
+            if (!await auth.canWrite()) {
+                utils.showNotification('Accès refusé : permissions insuffisantes', 'error');
+                setTimeout(() => window.location.href = 'aides.html', 1500);
+                return;
+            }
+
+            await layout.initLayout('aides.html');
+            document.querySelector('[name="date_attribution"]').valueAsDate = new Date();
+
+            await Promise.all([
+                loadBeneficiaries('veuve')
+            ]);
+        });
+
+        async function loadProgrammes() {
+            const { data } = await supabase.from('programmes_aide').select('*').eq('actif', true);
+            if (data) {
+                programmes = data;
+                const select = document.querySelector('[name="id_programme"]');
+                select.innerHTML = '<option value="">Sélectionner un programme...</option>';
+                data.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.nom_programme} (${p.type_aide})`;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        async function loadBeneficiaries(type) {
+            const table = type === 'veuve' ? 'veuves' : 'orphelins';
+            const select = document.getElementById('beneficiarySelect');
+            select.innerHTML = `<option data-i18n="loading">${i18n.t('loading')}</option>`;
+
+            const { data } = await supabase.from(table).select('id, nom_complet');
+            const placeholderKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
+            select.innerHTML = `<option value="" data-i18n="${placeholderKey}">${i18n.t(placeholderKey)}</option>`;
+            if (data) {
+                data.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b.id;
+                    opt.textContent = b.nom_complet;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function toggleBeneficiaryType(type) {
+            const label = document.getElementById('beneficiaryLabel');
+            const labelKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
+            label.textContent = i18n.t(labelKey);
+            label.setAttribute('data-i18n', labelKey);
+            loadBeneficiaries(type);
+        }
+
+        function updateAmountFromProgram(select) {
+            const progId = select.value;
+            const prog = programmes.find(p => p.id == progId);
+            if (prog && prog.montant_standard) {
+                document.querySelector('[name="montant"]').value = prog.montant_standard;
+            }
+        }
+
+        document.getElementById('aideForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!await auth.canWrite()) {
+                utils.showNotification('Action non autorisée', 'error');
+                return;
+            }
+
+            utils.showLoader();
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Format data
+            const type = data.beneficiary_type;
+            const beneficiaryId = data.beneficiary_id || null;
+
+            const finalData = {
+                id_programme: null,
+                // Nature aide: use specific text if "Autre" is selected
+                nature_aide: data.nature_aide === 'Autre' ? (data.autre_nature_aide || 'Autre') : data.nature_aide,
+                montant: parseFloat(data.montant) || 0,
+                date_aide: data.date_attribution,
+                commentaire: data.remarques,
+                id_veuve: type === 'veuve' ? beneficiaryId : null,
+                id_orphelin: type === 'orphelin' ? beneficiaryId : null
+            };
+
+            if (!beneficiaryId) {
+                utils.showNotification('Veuillez sélectionner un bénéficiaire', 'warning');
+                utils.hideLoader();
+                return;
+            }
+
+            try {
+                const { error } = await supabase.from('aides').insert([finalData]);
+                if (error) throw error;
+                utils.showNotification('Aide attribuée avec succès', 'success');
+                setTimeout(() => window.location.href = 'aides.html', 1000);
+            } catch (e) {
+                console.error(e);
+                utils.showNotification(`Erreur: ${e.message || e.details || 'Erreur inconnue'}`, 'error');
+            } finally {
+                utils.hideLoader();
+            }
+        });
+        function toggleAutreAide(val) {
+            const el = document.getElementById('autreAideDiv');
+            if (val === 'Autre') el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>

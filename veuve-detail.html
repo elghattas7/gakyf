@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="details_widow">Détails Veuve - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-gray-50">
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content with-sidebar">
+        <div id="header"></div>
+
+        <main class="p-6">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800" id="veuveName" data-i18n="details_widow">Détails de la
+                        Veuve</h2>
+                    <p class="text-gray-600 mt-1" data-i18n="complete_info">Informations complètes</p>
+                </div>
+                <div class="flex gap-3 no-print">
+                    <a href="veuves.html" class="btn-secondary" data-i18n="back">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Retour
+                    </a>
+                    <button onclick="window.print()" class="btn-secondary" data-i18n="print">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        Imprimer
+                    </button>
+                    <button onclick="editVeuve()" class="btn-primary" data-i18n="edit">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        Modifier
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Informations principales -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Informations Générales -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b" data-i18n="general_info">
+                            Informations Générales</h3>
+                        <div class="grid grid-cols-2 gap-4" id="generalInfo">
+                            <div class="spinner w-8 h-8"></div>
+                        </div>
+                    </div>
+
+                    <!-- Situation Familiale -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b" data-i18n="family_situation">
+                            Situation Familiale</h3>
+                        <div class="grid grid-cols-2 gap-4" id="familyInfo">
+                            <div class="spinner w-8 h-8"></div>
+                        </div>
+                    </div>
+
+                    <!-- Situation Économique -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b"
+                            data-i18n="economic_situation">Situation Économique</h3>
+                        <div class="grid grid-cols-2 gap-4" id="economicInfo">
+                            <div class="spinner w-8 h-8"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar avec orphelins et aides -->
+                <div class="space-y-6">
+                    <!-- Orphelins -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b" data-i18n="orphelins">
+                            Orphelins</h3>
+                        <div id="orphelinsList">
+                            <div class="spinner w-8 h-8"></div>
+                        </div>
+                    </div>
+
+                    <!-- Aides Reçues -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b" data-i18n="aides_received">
+                            Aides Reçues</h3>
+                        <div id="aidesList">
+                            <div class="spinner w-8 h-8"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <!-- <script src="js/config.js"></script> -->
+    <!-- <script src="js/supabase-client.js"></script> -->
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/translations.js?v=2"></script>
+    <script src="js/i18n.js?v=2"></script>
+    <script src="js/utils.js?v=2"></script>
+    <script src="js/layout.js?v=2"></script>
+
+    <script>
+        let veuveId = null;
+        let veuveData = null;
+
+        // Initialiser la page
+        (async () => {
+            await auth.protectPage();
+            await layout.initLayout('veuves.html');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            veuveId = urlParams.get('id');
+
+            if (!veuveId) {
+                showNotification(i18n.t('missing_id'), 'error');
+                setTimeout(() => window.location.href = 'veuves.html', 2000);
+                return;
+            }
+
+            await loadVeuveDetails();
+            await loadOrphelins();
+            await loadAides();
+        })();
+
+        // Re-render on language change
+        window.addEventListener('languageChanged', () => {
+            if (veuveData) displayVeuveDetails(veuveData);
+            loadOrphelins(); // Re-fetch/render orphans to update translations
+            loadAides(); // Re-fetch/render aids to update translations
+        });
+
+        async function loadVeuveDetails() {
+            try {
+                const { data, error } = await supabase
+                    .from('veuves')
+                    .select('*')
+                    .eq('id', veuveId)
+                    .single();
+
+                if (error) throw error;
+                if (!data) {
+                    showNotification(i18n.t('not_found'), 'error');
+                    setTimeout(() => window.location.href = 'veuves.html', 2000);
+                    return;
+                }
+
+                console.log('📌 DEBUG - Données Veuve reçues (v2):', data);
+                console.log('📌 DEBUG - Date Naissance:', data.date_naissance);
+                console.log('📌 DEBUG - Adresse:', data.adresse_residence);
+
+                veuveData = data;
+                displayVeuveDetails(data);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification(i18n.t('loading_error'), 'error');
+            }
+        }
+
+        function displayVeuveDetails(data) {
+            document.getElementById('veuveName').textContent = data.nom_complet || i18n.t('widow');
+
+            // Informations générales (Ajout RIB + Fallback keys)
+            document.getElementById('generalInfo').innerHTML = `
+                <div><span class="text-gray-600">${i18n.t('fullname_label')}</span><br><strong>${data.nom_complet || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('cin_label')}</span><br><strong>${data.numero_identification || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('phone_label')}</span><br><strong>${data.telephone || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('city_label')}</span><br><strong>${i18n.t('city_' + data.ville?.toLowerCase()) || data.ville || '-'}</strong></div>
+                <div class="col-span-2"><span class="text-gray-600">${i18n.t('address_label')}</span><br><strong>${data.adresse_residence || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('dob_label')}</span><br><strong>${utils.formatDate(data.date_naissance)}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('situation_pro_label')}</span><br><strong>${i18n.t(data.situation_professionnelle?.toLowerCase()) || data.situation_professionnelle || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('school_level_label')}</span><br><strong>${i18n.t(data.niveau_scolaire?.toLowerCase()) || data.niveau_scolaire || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('adhesion_date_label')}</span><br><strong>${utils.formatDate(data.date_adhesion)}</strong></div>
+                <div class="col-span-2 bg-blue-50 p-2 rounded border border-blue-100"><span class="text-gray-600 text-xs uppercase font-bold">RIB (Compte Bancaire)</span><br><strong class="font-mono text-blue-800 text-lg">${data.rib || '-'}</strong></div>
+            `;
+
+            // Situation familiale (Fallback nom_mari)
+            document.getElementById('familyInfo').innerHTML = `
+                <div><span class="text-gray-600">${i18n.t('deceased_husband_label')}</span><br><strong>${data.nom_mari_decede || data.nom_mari || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('death_date_label')}</span><br><strong>${data.date_deces ? new Date(data.date_deces).getFullYear() : (data.date_deces_mari ? new Date(data.date_deces_mari).getFullYear() : '-')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('children_count_label')}</span><br><strong>${data.nombre_enfants !== null ? data.nombre_enfants : '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('orphans_count_label')}</span><br><strong>${data.nombre_enfants_orphelins !== null ? data.nombre_enfants_orphelins : '-'}</strong></div>
+            `;
+
+            // Situation économique (Check keys)
+            document.getElementById('economicInfo').innerHTML = `
+                <div><span class="text-gray-600">${i18n.t('monthly_income_label')}</span><br><strong>${utils.formatCurrency(utils.convertAmount(data.revenu_mensuel, 'DH', 'EUR'), 'EUR')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('housing_type_label')}</span><br><strong>${i18n.t(data.type_logement?.toLowerCase()) || data.type_logement || '-'}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('monthly_rent_label')}</span><br><strong>${utils.formatCurrency(utils.convertAmount(data.montant_loyer_mensuel, 'DH', 'EUR'), 'EUR')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('pension_label')}</span><br><strong>${data.pension_retraite ? i18n.t('yes') + ' (' + utils.formatCurrency(utils.convertAmount(data.montant_pension_retraite, 'DH', 'EUR'), 'EUR') + ')' : i18n.t('no')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('social_support_label')}</span><br><strong>${data.soutien_social_direct ? i18n.t('yes') + ' (' + utils.formatCurrency(utils.convertAmount(data.montant_soutien_social, 'DH', 'EUR'), 'EUR') + ')' : i18n.t('no')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('extra_aid_label')}</span><br><strong>${data.aide_financiere_supplementaire ? i18n.t('yes') + ' (' + utils.formatCurrency(utils.convertAmount(data.montant_aide_supplementaire, 'DH', 'EUR'), 'EUR') + ')' : i18n.t('no')}</strong></div>
+                <div><span class="text-gray-600">${i18n.t('health_coverage_label')}</span><br><strong>${data.couverture_sante ? i18n.t('yes') : i18n.t('no')}</strong></div>
+            `;
+        }
+
+        async function loadOrphelins() {
+            const container = document.getElementById('orphelinsList');
+            try {
+                const { data, error } = await supabase
+                    .from('orphelins')
+                    .select('*')
+                    .eq('id_mere', veuveId)
+                    .order('date_naissance', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-gray-500 text-sm" data-i18n="no_orphans_registered">${i18n.t('no_orphans_registered')}</p>`;
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                data.forEach(orphelin => {
+                    const ageCalculated = utils.calculateAge(orphelin.date_naissance);
+                    html += `
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-medium text-gray-800">${orphelin.nom_complet}</div>
+                            <div class="text-sm text-gray-600" data-i18n="age">${i18n.t('age_column')}: ${ageCalculated !== null ? ageCalculated : '-'} ${i18n.t('years_old')}</div>
+                            <div class="text-sm text-gray-600">${i18n.t(orphelin.niveau_scolaire?.toLowerCase()) || orphelin.niveau_scolaire || '-'}</div>
+                            <a href="orphelin-form.html?id=${orphelin.id}" class="text-blue-600 text-sm hover:underline" data-i18n="view_details">${i18n.t('view_details')} →</a>
+                        </div>
+                `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Erreur loadOrphelins:', error);
+                if (container) container.innerHTML = `<p class="text-red-500 text-sm" data-i18n="loading_error">${i18n.t('loading_error')}</p>`;
+            }
+        }
+
+        async function loadAides() {
+            const container = document.getElementById('aidesList');
+            try {
+                const { data, error } = await supabase
+                    .from('aides')
+                    .select('*, programmes_aide(nom_programme, type_aide)')
+                    .eq('id_veuve', veuveId)
+                    .order('date_aide', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-gray-500 text-sm" data-i18n="no_aid_received">${i18n.t('no_aid_received')}</p>`;
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                data.forEach(aide => {
+                    html += `
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-medium text-gray-800">${i18n.t(aide.programmes_aide?.nom_programme?.toLowerCase()) || aide.programmes_aide?.nom_programme || i18n.t('program')}</div>
+                            <div class="text-sm text-gray-600">${utils.formatCurrency(aide.montant, 'EUR')}</div>
+                            <div class="text-xs text-gray-500">${utils.formatDate(aide.date_aide)}</div>
+                        </div>
+                `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Erreur loadAides:', error);
+                if (error.code === 'PGRST205' || error.code === '404') {
+                    if (container) container.innerHTML = `<p class="text-gray-400 text-sm">Module d'aides non configuré.</p>`;
+                } else {
+                    if (container) container.innerHTML = `<p class="text-red-500 text-sm" data-i18n="loading_error">${i18n.t('loading_error')}</p>`;
+                }
+            }
+        }
+
+        async function addNewProgram() {
+            const { value: formValues } = await Swal.fire({
+                title: i18n.t('new_program'),
+                html: `
+                <input id="swal-input1" class="swal2-input" placeholder="${i18n.t('prog_nature')}">
+                    <select id="swal-input2" class="swal2-input">
+                        <option value="financier">Financier</option>
+                        <option value="materiel">Matériel</option>
+                    </select>
+            `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: i18n.t('save_btn'),
+                cancelButtonText: i18n.t('cancel'),
+                preConfirm: () => {
+                    return [
+                        document.getElementById('swal-input1').value,
+                        document.getElementById('swal-input2').value
+                    ]
+                }
+            });
+
+            if (formValues) {
+                const [nom, type] = formValues;
+                if (!nom) return;
+
+                try {
+                    const { error } = await supabase.from('programmes_aide').insert([{
+                        nom_programme: nom,
+                        type_aide: type,
+                        statut: 'actif'
+                    }]);
+
+                    if (error) throw error;
+
+                    Swal.fire(i18n.t('save'), 'Programme ajouté', 'success');
+                    // Reload if on aides page or just let current session know
+                    if (typeof loadProgrammes === 'function') loadProgrammes();
+                } catch (e) {
+                    console.error(e);
+                    Swal.fire(i18n.t('error'), 'Erreur creation', 'error');
+                }
+            }
+        }
+
+        function editVeuve() {
+            window.location.href = `veuve-form.html?id=${veuveId}`;
+        }
+    </script>
+</body>
+
+</html>

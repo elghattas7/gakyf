@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="annual_reports">Rapports Annuels - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="annual_reports">Rapports Annuels</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="annual_reports_subtitle">Génération de rapports complets
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <select id="yearSelector" class="input-modern" onchange="annualReports.loadData()">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Executive Summary -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="executive_summary">Résumé Exécutif</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <p class="text-3xl font-bold text-green-600" id="summaryDonations">0 €</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="total_donations">Total Dons</p>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <p class="text-3xl font-bold text-blue-600" id="summaryAids">0 €</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="total_aids">Total Aides</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <p class="text-3xl font-bold text-purple-600" id="summaryBeneficiaries">0</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="beneficiaries_helped">Bénéficiaires Aidés</p>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded-lg">
+                        <p class="text-3xl font-bold text-orange-600" id="summaryDonors">0</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="total_donors">Total Donateurs</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Report -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="financial_report">Rapport Financier</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3" data-i18n="donations_breakdown">Répartition des
+                            Dons</h4>
+                        <canvas id="donationsChart"></canvas>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3" data-i18n="monthly_evolution">Évolution Mensuelle
+                        </h4>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                <!-- Category Breakdown Table -->
+                <div class="mt-8">
+                    <h4 class="font-semibold text-gray-700 mb-3" data-i18n="donations_breakdown_detail">Détail par
+                        Catégorie (€)</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                        data-i18n="category">Catégorie</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                        data-i18n="amount">Montant (€)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                        data-i18n="donations_count">Nombre de Dons</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryBreakdownBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beneficiaries Report -->
+            <div class="card p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="beneficiaries_report">Rapport Bénéficiaires
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-bold text-gray-800" id="widowsCount">0</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="widows">Veuves</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-bold text-gray-800" id="orphansCount">0</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="orphans">Orphelins</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-2xl font-bold text-gray-800" id="aidsCount">0</p>
+                        <p class="text-sm text-gray-600 mt-1" data-i18n="aids_distributed">Aides Distribuées</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donors Report -->
+            <div class="card p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n="donors_report">Rapport Donateurs</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                    data-i18n="donor">Donateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                    data-i18n="total_amount">Montant Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                                    data-i18n="donations_count">Nombre de Dons</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donorsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+    <!-- Export Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/arabic-reshaper@2.1.6/arabic-reshaper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bidi-js@1.0.3/dist/bidi.min.js"></script>
+    <script src="js/pdf-fonts.js"></script>
+    <script src="js/export-utils.js"></script>
+
+    <script>
+        const annualReports = {
+            charts: {},
+            data: {},
+            selectedYear: new Date().getFullYear(),
+
+            async init() {
+                await auth.protectPage();
+                await layout.initLayout('annual-reports.html');
+                this.populateYearSelector();
+                await this.loadData();
+            },
+
+            populateYearSelector() {
+                const select = document.getElementById('yearSelector');
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear; year >= currentYear - 5; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    select.appendChild(option);
+                }
+            },
+
+            async loadData() {
+                this.selectedYear = document.getElementById('yearSelector').value;
+                utils.showLoader();
+
+                try {
+                    const startDate = `${this.selectedYear}-01-01`;
+                    const endDate = `${this.selectedYear}-12-31`;
+
+                    // Load all data
+                    const [donations, aids, widows, orphans] = await Promise.all([
+                        supabase.from('dons').select('*'),
+                        supabase.from('aides').select('*').gte('date_aide', startDate).lte('date_aide', endDate),
+                        supabase.from('veuves').select('*'),
+                        supabase.from('orphelins').select('*')
+                    ]);
+
+                    this.data = {
+                        donations: (donations.data || []).map(d => {
+                            // Normalize currency and year
+                            if (d.devise === '€') d.devise = 'EUR';
+                            if (!d.annee_don) {
+                                d.annee_don = d.date_don ? new Date(d.date_don).getUTCFullYear() : new Date(d.created_at).getUTCFullYear();
+                            }
+                            return d;
+                        }).filter(d => parseInt(d.annee_don) === parseInt(this.selectedYear)),
+                        aids: (aids.data || []),
+                        widows: widows.data || [],
+                        orphans: orphans.data || []
+                    };
+
+                    this.updateSummary();
+                    this.renderCharts();
+                    this.renderDonorsTable();
+                } catch (e) {
+                    console.error('Error loading data:', e);
+                    utils.showNotification('Erreur lors du chargement', 'error');
+                } finally {
+                    utils.hideLoader();
+                }
+            },
+
+            updateSummary() {
+                const allDonations = this.data.donations;
+                const totalDonations = allDonations.reduce((sum, d) => sum + (Number(d.montant) || 0), 0);
+                const totalAids = this.data.aids.reduce((sum, a) => sum + (Number(a.montant) || 0), 0);
+                const uniqueDonors = new Set(allDonations.map(d => d.nom_donateur).filter(n => !!n)).size;
+                const beneficiaries = (this.data.widows || []).length + (this.data.orphans || []).length;
+
+                document.getElementById('summaryDonations').textContent = utils.formatCurrency(totalDonations, 'EUR');
+                document.getElementById('summaryAids').textContent = utils.formatCurrency(totalAids, 'EUR');
+                document.getElementById('summaryBeneficiaries').textContent = beneficiaries;
+                document.getElementById('summaryDonors').textContent = uniqueDonors;
+
+                document.getElementById('widowsCount').textContent = (this.data.widows || []).length;
+                document.getElementById('orphansCount').textContent = (this.data.orphans || []).length;
+                document.getElementById('aidsCount').textContent = (this.data.aids || []).length;
+            },
+
+            renderCharts() {
+                this.renderDonationsChart();
+                this.renderMonthlyChart();
+            },
+
+            renderDonationsChart() {
+                const ctx = document.getElementById('donationsChart');
+                if (this.charts.donations) this.charts.donations.destroy();
+
+                const distributionData = {};
+                const countsPerCategory = {};
+
+                this.data.donations.forEach(d => {
+                    const category = d.nature_don || 'Autre';
+                    distributionData[category] = (distributionData[category] || 0) + (Number(d.montant) || 0);
+                    countsPerCategory[category] = (countsPerCategory[category] || 0) + 1;
+                });
+
+                const labels = Object.keys(distributionData).map(key => i18n.t(key.toLowerCase()) || key);
+                const values = Object.values(distributionData);
+
+                this.charts.donations = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b']
+                        }]
+                    }
+                });
+
+                this.renderCategoryBreakdown(distributionData, countsPerCategory);
+            },
+
+            renderCategoryBreakdown(data, counts) {
+                const tbody = document.getElementById('categoryBreakdownBody');
+                const sortedCategories = Object.keys(data).sort((a, b) => data[b] - data[a]);
+
+                tbody.innerHTML = sortedCategories.map(category => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">${i18n.t(category.toLowerCase()) || category}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-green-600">${utils.formatCurrency(data[category], 'EUR')}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${counts[category]}</td>
+                    </tr>
+                `).join('');
+
+                if (sortedCategories.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Aucune donnée disponible</td></tr>';
+                }
+            },
+
+            renderMonthlyChart() {
+                const ctx = document.getElementById('monthlyChart');
+                if (this.charts.monthly) this.charts.monthly.destroy();
+
+                const monthlyData = Array(12).fill(0);
+
+                this.data.donations.forEach(d => {
+                    const date = d.date_don || d.created_at;
+                    if (date) {
+                        const month = new Date(date).getMonth();
+                        monthlyData[month] += Number(d.montant) || 0;
+                    }
+                });
+
+                this.charts.monthly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                        datasets: [{
+                            label: 'Dons (€)',
+                            data: monthlyData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.8)'
+                        }]
+                    }
+                });
+            },
+
+            renderDonorsTable() {
+                const donorTotals = {};
+                const donorCounts = {};
+
+                this.data.donations.forEach(d => {
+                    const name = d.nom_donateur || 'Anonyme';
+                    donorTotals[name] = (donorTotals[name] || 0) + (Number(d.montant) || 0);
+                    donorCounts[name] = (donorCounts[name] || 0) + 1;
+                });
+
+                const sorted = Object.entries(donorTotals)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 20);
+
+                const tbody = document.getElementById('donorsTableBody');
+                tbody.innerHTML = sorted.map(([name, amount]) => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">${name}</td>
+                        <td class="px-6 py-4 text-sm font-semibold text-green-600">${utils.formatCurrency(amount, 'EUR')}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${donorCounts[name]}</td>
+                    </tr>
+                `).join('');
+            },
+
+            async generatePDF() {
+                try {
+                    utils.showLoader();
+                    const { doc, isArabic, processText, startY, pdfFont } = exportUtils.initPdf({
+                        title: i18n.t('financial_report') || 'Rapport Financier',
+                        year: this.selectedYear
+                    });
+
+                    // 1. Executive Summary
+                    doc.setFontSize(14);
+                    doc.setTextColor(30, 64, 175);
+                    doc.text(processText(i18n.t('executive_summary')), isArabic ? 200 - 14 : 14, startY, { align: isArabic ? 'right' : 'left' });
+
+                    doc.setFontSize(11);
+                    doc.setTextColor(0, 0, 0);
+                    const summaryData = [
+                        [processText(i18n.t('total_donations')), processText(document.getElementById('summaryDonations').textContent)],
+                        [processText(i18n.t('total_aids')), processText(document.getElementById('summaryAids').textContent)],
+                        [processText(i18n.t('beneficiaries_helped')), processText(document.getElementById('summaryBeneficiaries').textContent)],
+                        [processText(i18n.t('total_donors')), processText(document.getElementById('summaryDonors').textContent)]
+                    ];
+
+                    doc.autoTable({
+                        startY: startY + 5,
+                        body: summaryData,
+                        theme: 'grid',
+                        styles: { font: pdfFont, halign: isArabic ? 'right' : 'left' },
+                        columnStyles: { 0: { fontStyle: 'bold', width: 60 } }
+                    });
+
+                    let finalY = doc.lastAutoTable.finalY + 15;
+
+                    // 2. Donations by Category
+                    doc.setFontSize(14);
+                    doc.setTextColor(30, 64, 175);
+                    doc.text(processText(i18n.t('donations_breakdown')), isArabic ? 200 - 14 : 14, finalY, { align: isArabic ? 'right' : 'left' });
+
+                    const categoryHeaders = [
+                        i18n.t('category'),
+                        i18n.t('amount'),
+                        i18n.t('donations_count')
+                    ].map(h => processText(h));
+
+                    const categoryRows = Array.from(document.querySelectorAll('#categoryBreakdownBody tr')).map(tr => {
+                        return Array.from(tr.querySelectorAll('td')).map(td => processText(td.textContent.trim()));
+                    });
+
+                    doc.autoTable({
+                        startY: finalY + 5,
+                        head: [isArabic ? categoryHeaders.reverse() : categoryHeaders],
+                        body: isArabic ? categoryRows.map(r => r.reverse()) : categoryRows,
+                        theme: 'striped',
+                        styles: { font: pdfFont, halign: isArabic ? 'right' : 'left' },
+                        headStyles: { fillGray: 240, textColor: 0, fontStyle: 'bold' }
+                    });
+
+                    finalY = doc.lastAutoTable.finalY + 15;
+
+                    // 3. Top Donors
+                    doc.setFontSize(14);
+                    doc.setTextColor(30, 64, 175);
+                    doc.text(processText(i18n.t('top_donors')), isArabic ? 200 - 14 : 14, finalY, { align: isArabic ? 'right' : 'left' });
+
+                    const donorHeaders = [
+                        i18n.t('donor'),
+                        i18n.t('total_amount'),
+                        i18n.t('donations_count')
+                    ].map(h => processText(h));
+
+                    const donorRows = Array.from(document.querySelectorAll('#donorsTableBody tr')).map(tr => {
+                        return Array.from(tr.querySelectorAll('td')).map(td => processText(td.textContent.trim()));
+                    });
+
+                    doc.autoTable({
+                        startY: finalY + 5,
+                        head: [isArabic ? donorHeaders.reverse() : donorHeaders],
+                        body: isArabic ? donorRows.map(r => r.reverse()) : donorRows,
+                        theme: 'striped',
+                        styles: { font: pdfFont, halign: isArabic ? 'right' : 'left' },
+                        headStyles: { fillGray: 240, textColor: 0, fontStyle: 'bold' }
+                    });
+
+                    // Add charts as images if they exist
+                    try {
+                        const donationsCanvas = document.getElementById('donationsChart');
+                        if (donationsCanvas) {
+                            doc.addPage();
+                            doc.setFontSize(14);
+                            doc.text(processText(i18n.t('donations_distribution')), isArabic ? 200 - 14 : 14, 20, { align: isArabic ? 'right' : 'left' });
+                            const imgData = donationsCanvas.toDataURL('image/png');
+                            doc.addImage(imgData, 'PNG', 35, 30, 140, 100);
+                        }
+                    } catch (chartError) {
+                        console.error('Error adding charts to PDF:', chartError);
+                    }
+
+                    doc.save(`rapport_annuel_${this.selectedYear}.pdf`);
+                    utils.showNotification('PDF généré avec succès', 'success');
+                } catch (e) {
+                    console.error('PDF Error:', e);
+                    utils.showNotification('Erreur lors de la génération du PDF', 'error');
+                } finally {
+                    utils.hideLoader();
+                }
+            },
+
+            async exportExcel() {
+                const headers = [
+                    i18n.t('donor') || 'Donateur',
+                    i18n.t('total_amount') || 'Montant Total (€)',
+                    i18n.t('donations_count') || 'Nombre de Dons'
+                ];
+                const donorTotals = {};
+                const donorCounts = {};
+
+                this.data.donations.forEach(d => {
+                    const name = d.nom_donateur || 'Anonyme';
+                    donorTotals[name] = (donorTotals[name] || 0) + (Number(d.montant) || 0);
+                    donorCounts[name] = (donorCounts[name] || 0) + 1;
+                });
+
+                const rows = Object.entries(donorTotals).map(([name, amount]) => [
+                    name,
+                    amount,
+                    donorCounts[name]
+                ]);
+
+                const data = [headers, ...rows];
+                exportUtils.exportToExcel(data, `rapport_donateurs_euro_${this.selectedYear}`, `Donateurs Euro ${this.selectedYear}`);
+            }
+        };
+
+        annualReports.init();
+    </script>
+</body>
+
+</html>

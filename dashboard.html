@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="dashboard">Tableau de bord - Gestion Association</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Police Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stat-card-modern {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card-modern:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50/50">
+
+    <!-- Sidebar -->
+    <div id="sidebarContainer"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div id="header"></div>
+
+        <!-- Page Content -->
+        <main class="p-8 fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 tracking-tight" data-i18n="dashboard">Tableau de bord</h2>
+                <p class="text-gray-500 mt-2" data-i18n="overview_analytics">Vue d'ensemble et analytique</p>
+            </div>
+
+            <!-- Stats Cards Modern -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Veuves -->
+                <div
+                    class="stat-card-modern bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider" data-i18n="widows">
+                                Veuves</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-2" id="totalVeuves">-</h3>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded-xl text-purple-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 12H4M12 20V4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-purple-50 rounded-full opacity-50 blur-xl">
+                    </div>
+                </div>
+
+                <!-- Orphelins -->
+                <div
+                    class="stat-card-modern bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider" data-i18n="orphans">
+                                Orphelins</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-2" id="totalOrphelins">-</h3>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-xl text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 blur-xl"></div>
+                </div>
+
+                <!-- Dons -->
+                <div
+                    class="stat-card-modern bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider" data-i18n="donations">
+                                Total Dons (€)</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-2" id="totalDons">-</h3>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-xl text-green-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-green-50 rounded-full opacity-50 blur-xl">
+                    </div>
+                </div>
+
+                <!-- Aides -->
+                <div
+                    class="stat-card-modern bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider"
+                                data-i18n="aids_awarded">Aides Versées (€)</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-2" id="totalAides">-</h3>
+                        </div>
+                        <div class="p-3 bg-orange-50 rounded-xl text-orange-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-orange-50 rounded-full opacity-50 blur-xl">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+                <!-- Veuves par Ville -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 xl:col-span-1">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6" data-i18n="widows_by_city">Veuves par Ville</h3>
+                    <div class="relative h-64">
+                        <canvas id="veuvesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Orphelins par Scolarité/Ville -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 xl:col-span-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-800" data-i18n="orphans_by_city">Orphelins par Ville</h3>
+                    </div>
+                    <div class="relative h-64">
+                        <canvas id="orphelinsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-800" data-i18n="recent_activities">Activités Récentes</h3>
+                    <button onclick="window.location.href='aides.html'"
+                        class="text-sm text-blue-600 font-medium hover:text-blue-800" data-i18n="view_all">Voir
+                        tout</button>
+                </div>
+                <div class="p-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50 text-xs uppercase text-gray-500 font-medium">
+                                <th class="px-6 py-4" data-i18n="prog_nature">Programme / Nature</th>
+                                <th class="px-6 py-4" data-i18n="beneficiary">Bénéficiaire</th>
+                                <th class="px-6 py-4" data-i18n="date">Date</th>
+                                <th class="px-6 py-4 text-right" data-i18n="amount">Montant</th>
+                                <th class="px-6 py-4 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivitiesBody" class="divide-y divide-gray-50">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500" data-i18n="loading_dots">
+                                    Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        let veuvesChartInstance = null;
+        let orphelinsChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await auth.protectPage();
+            await i18n.init();
+            await layout.initLayout('dashboard.html');
+            await loadDashboardData();
+        });
+
+        async function loadDashboardData() {
+            try {
+                // 1. Load Stats
+                const { count: veuvesCount } = await supabase.from('veuves').select('*', { count: 'exact', head: true });
+                const { count: orphelinsCount } = await supabase.from('orphelins').select('*', { count: 'exact', head: true });
+                const { data: aidesData } = await supabase.from('aides').select('montant');
+
+                const totalAidesEUR = (aidesData || []).reduce((sum, a) => sum + utils.convertAmount(a.montant, 'EUR', 'EUR'), 0);
+
+                // Calculate Total Aides amount instead of count? Or existing code did count?
+                // Step 564 used count. I'll use sum for "Aides Versées" or count. 
+                // "Aides Attribuées" usually means count. "Aides Versées (DH)" means amount.
+                // The card says "Aides Versées" but displays number? Let's show Amount or Count?
+                // Old code showed count. I'll show Amount this time for "Aides Versées"? 
+                // Or stick to Count for consistency with "Total Veuves". I will show Count.
+                // Wait, "Total Dons" is Amount (DH).
+                // Let's show Count for Aides to match label "Total Aides" but wait, My label is "Aides Versées".
+                // I'll show count. 
+                const aidesCount = aidesData ? aidesData.length : 0; // or use count: exact
+
+                // Dons Amount (Converted to EUR)
+                const { data: dons } = await supabase.from('dons').select('montant, nature_don, devise');
+                let totalDonsEUR = 0;
+
+                if (dons) {
+                    dons.forEach(d => {
+                        totalDonsEUR += utils.convertAmount(d.montant, d.devise, 'EUR');
+                    });
+                }
+
+                // Update DOM
+                document.getElementById('totalVeuves').textContent = veuvesCount || 0;
+                document.getElementById('totalOrphelins').textContent = orphelinsCount || 0;
+                document.getElementById('totalAides').textContent = utils.formatCurrency(totalAidesEUR, 'EUR');
+
+                // Afficher le total en EUR
+                document.getElementById('totalDons').textContent = utils.formatCurrency(totalDonsEUR, 'EUR');
+
+                // 2. Load Charts
+                // Chart 1: Veuves par Ville
+                const { data: veuvesCityData } = await supabase.from('veuves').select('ville');
+                if (veuvesCityData) {
+                    const veuveCounts = {};
+                    veuvesCityData.forEach(v => {
+                        const city = v.ville || 'Inconnu';
+                        veuveCounts[city] = (veuveCounts[city] || 0) + 1;
+                    });
+
+                    const ctxVeuves = document.getElementById('veuvesChart').getContext('2d');
+                    if (veuvesChartInstance) veuvesChartInstance.destroy();
+                    veuvesChartInstance = new Chart(ctxVeuves, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(veuveCounts),
+                            datasets: [{
+                                data: Object.values(veuveCounts),
+                                backgroundColor: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EC4899'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { padding: 20, usePointStyle: true }
+                                }
+                            },
+                            cutout: '70%'
+                        }
+                    });
+                }
+
+                // Chart 2: Orphelins par Ville
+                const { data: orphelinsData } = await supabase.from('orphelins').select('ville');
+                if (orphelinsData) {
+                    const counts = {};
+                    orphelinsData.forEach(o => {
+                        const v = o.ville || 'Inconnu';
+                        counts[v] = (counts[v] || 0) + 1;
+                    });
+
+                    const ctxOrph = document.getElementById('orphelinsChart').getContext('2d');
+                    if (orphelinsChartInstance) orphelinsChartInstance.destroy();
+                    orphelinsChartInstance = new Chart(ctxOrph, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(counts),
+                            datasets: [{
+                                label: i18n.t('orphans'),
+                                data: Object.values(counts),
+                                backgroundColor: '#3B82F6',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: '#F3F4F6' } },
+                                x: { grid: { display: false } }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+
+                // 3. Recent Activities
+                const { data: activities } = await supabase
+                    .from('aides')
+                    .select('*, programmes_aide(nom_programme), veuves(nom_complet), orphelins(nom_complet)')
+                    .order('date_aide', { ascending: false })
+                    .limit(5);
+
+                const tbody = document.getElementById('recentActivitiesBody');
+                if (!activities || activities.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500" data-i18n="no_recent_activity">${i18n.t('no_recent_activity')}</td></tr>`;
+                } else {
+                    tbody.innerHTML = activities.map(a => `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900">${a.nature_aide || a.programmes_aide?.nom_programme || 'Aide'}</div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">
+                                ${a.veuves?.nom_complet || a.orphelins?.nom_complet || '-'}
+                            </td>
+                            <td class="px-6 py-4 text-gray-500 text-sm">${utils.formatDate(a.date_aide)}</td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-900">${utils.formatCurrency(a.montant, 'EUR')}</td>
+                            <td class="px-6 py-4 text-center"></td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (e) {
+                console.error("Dashboard error:", e);
+                utils.showNotification("Erreur de chargement du tableau de bord", "error");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test UPDATE Don</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="p-8 bg-gray-50">
+    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">🔍 Test de Modification de Don</h1>
+
+        <div class="space-y-4">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                <p class="font-semibold text-blue-800">Instructions:</p>
+                <ol class="list-decimal list-inside mt-2 space-y-1 text-sm">
+                    <li>Sélectionnez un don à modifier</li>
+                    <li>Changez le montant</li>
+                    <li>Cliquez sur "Tester la Modification"</li>
+                    <li>Vérifiez les résultats ci-dessous</li>
+                </ol>
+            </div>
+
+            <div class="border rounded p-4">
+                <label class="block font-semibold mb-2">Sélectionner un don:</label>
+                <select id="donSelect" class="w-full border rounded px-3 py-2 mb-4">
+                    <option value="">Chargement...</option>
+                </select>
+
+                <label class="block font-semibold mb-2">Nouveau montant:</label>
+                <input type="number" id="newAmount" class="w-full border rounded px-3 py-2 mb-4" placeholder="Ex: 250">
+
+                <button onclick="testUpdate()"
+                    class="w-full bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 font-semibold">
+                    🧪 Tester la Modification
+                </button>
+            </div>
+
+            <div id="results" class="mt-6"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <script>
+        let allDons = [];
+
+        async function loadDons() {
+            try {
+                const { data, error } = await supabase.from('dons').select('*').limit(10);
+                if (error) throw error;
+
+                allDons = data || [];
+                const select = document.getElementById('donSelect');
+                select.innerHTML = '<option value="">-- Sélectionner un don --</option>';
+
+                allDons.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = `${d.nom_donateur} - ${d.montant} ${d.devise} (${d.annee_don})`;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                showResult('error', 'Erreur chargement: ' + e.message);
+            }
+        }
+
+        async function testUpdate() {
+            const donId = document.getElementById('donSelect').value;
+            const newAmount = parseFloat(document.getElementById('newAmount').value);
+
+            if (!donId) {
+                showResult('warning', 'Veuillez sélectionner un don');
+                return;
+            }
+
+            if (!newAmount || isNaN(newAmount)) {
+                showResult('warning', 'Veuillez entrer un montant valide');
+                return;
+            }
+
+            showResult('info', '⏳ Test en cours...');
+
+            try {
+                // Récupérer le don original
+                const originalDon = allDons.find(d => d.id === donId);
+
+                // Préparer les données de mise à jour
+                const updateData = {
+                    montant: newAmount,
+                    date_don: new Date().toISOString().split('T')[0]
+                };
+
+                console.log('🔍 Tentative UPDATE avec:', updateData);
+                console.log('🔍 Pour le don ID:', donId);
+
+                // Tenter la mise à jour
+                const { data, error } = await supabase
+                    .from('dons')
+                    .update(updateData)
+                    .eq('id', donId)
+                    .select();
+
+                console.log('📊 Résultat UPDATE:', { data, error });
+
+                if (error) {
+                    throw error;
+                }
+
+                // Vérifier si la mise à jour a réussi
+                const { data: verifyData, error: verifyError } = await supabase
+                    .from('dons')
+                    .select('*')
+                    .eq('id', donId)
+                    .single();
+
+                if (verifyError) throw verifyError;
+
+                let resultHtml = `
+                    <div class="border rounded p-4 bg-green-50 border-green-200">
+                        <h3 class="font-bold text-green-800 mb-3">✅ Mise à jour réussie !</h3>
+                        <table class="w-full text-sm">
+                            <tr class="border-b">
+                                <th class="text-left p-2 bg-gray-100">Champ</th>
+                                <th class="text-left p-2 bg-gray-100">Avant</th>
+                                <th class="text-left p-2 bg-gray-100">Après</th>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-semibold">Montant</td>
+                                <td class="p-2">${originalDon.montant} ${originalDon.devise}</td>
+                                <td class="p-2 text-green-600 font-bold">${verifyData.montant} ${verifyData.devise}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-semibold">Date</td>
+                                <td class="p-2">${originalDon.date_don || 'N/A'}</td>
+                                <td class="p-2 text-green-600 font-bold">${verifyData.date_don}</td>
+                            </tr>
+                        </table>
+                        <p class="mt-3 text-xs text-gray-600">
+                            <strong>Données retournées:</strong> ${data ? data.length + ' ligne(s)' : 'Aucune'}
+                        </p>
+                    </div>
+                `;
+
+                document.getElementById('results').innerHTML = resultHtml;
+
+            } catch (e) {
+                console.error('❌ Erreur UPDATE:', e);
+
+                let errorHtml = `
+                    <div class="border rounded p-4 bg-red-50 border-red-200">
+                        <h3 class="font-bold text-red-800 mb-3">❌ Erreur de mise à jour</h3>
+                        <div class="space-y-2 text-sm">
+                            <p><strong>Message:</strong> ${e.message}</p>
+                            <p><strong>Code:</strong> ${e.code || 'N/A'}</p>
+                            <p><strong>Détails:</strong> ${e.details || 'N/A'}</p>
+                            <p><strong>Hint:</strong> ${e.hint || 'N/A'}</p>
+                        </div>
+                        ${e.code === '42501' ? `
+                            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                <p class="font-semibold text-yellow-800">🔒 Problème de permissions RLS</p>
+                                <p class="text-xs mt-1">Les politiques Row Level Security bloquent la mise à jour. Vérifiez les politiques UPDATE dans Supabase.</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                document.getElementById('results').innerHTML = errorHtml;
+            }
+        }
+
+        function showResult(type, message) {
+            const colors = {
+                error: 'red',
+                warning: 'yellow',
+                info: 'blue',
+                success: 'green'
+            };
+            const color = colors[type] || 'gray';
+
+            document.getElementById('results').innerHTML = `
+                <div class="border rounded p-4 bg-${color}-50 border-${color}-200">
+                    <p class="text-${color}-800">${message}</p>
+                </div>
+            `;
+        }
+
+        // Charger les dons au démarrage
+        window.addEventListener('DOMContentLoaded', loadDons);
+    </script>
+</body>
+
+</html>

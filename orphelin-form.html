@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter Orphelin - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .form-section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" id="pageTitle" data-i18n="add_orphan">Ajouter un Orphelin</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="new_parrainage">Nouveau dossier de parrainage</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="orphelins.html" class="btn btn-secondary" data-i18n="cancel">Annuler</a>
+                    <button type="button" onclick="document.getElementById('orphelinForm').requestSubmit()"
+                        class="btn btn-primary" data-i18n="save_btn">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            <form id="orphelinForm" class="space-y-6 max-w-7xl mx-auto">
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Colonne Gauche: Identité & Mère -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Informations Personnelles -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-indigo-100 text-indigo-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="identity">Identité</h3>
+                                    <p class="text-sm text-gray-500" data-i18n="child_info">Informations de l'enfant</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="full_name">Nom Complet <span class="text-red-500">*</span></label>
+                                    <input type="text" name="nom_complet" required class="input-modern"
+                                        placeholder="Ex: Ahmed Benali" data-i18n="fullname_placeholder">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="gender">Genre</label>
+                                    <select name="sexe" class="input-modern">
+                                        <option value="Garçon" data-i18n="boy">Garçon</option>
+                                        <option value="Fille" data-i18n="girl">Fille</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="birth_date">Date de
+                                        Naissance</label>
+                                    <input type="date" name="date_naissance" required class="input-modern">
+                                </div>
+
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="mother_link">Lien avec la Mère
+                                        (Veuve) <span class="text-red-500">*</span></label>
+                                    <select name="id_mere" id="selectMere" required class="input-modern">
+                                        <option value="" data-i18n="select">Sélectionner la veuve...</option>
+                                    </select>
+                                    <p class="text-xs text-info mt-1" data-i18n="mother_link_warning">La veuve doit être
+                                        enregistrée au préalable.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scolarité -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-blue-100 text-blue-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="scolarite">Scolarité</h3>
+                                    <p class="text-sm text-gray-500" data-i18n="education_followup">Suivi éducatif</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="level">Niveau
+                                        Scolaire</label>
+                                    <select name="niveau_scolaire" id="selectNiveauScolaire"
+                                        class="input-modern text-sm" onchange="updateAnneeOptions()">
+                                        <option value="" data-i18n="select">Sélectionner...</option>
+                                        <option value="préscolaire" data-i18n="préscolaire">Préscolaire</option>
+                                        <option value="primaire" data-i18n="primaire">Primaire</option>
+                                        <option value="collège" data-i18n="collège">Collège</option>
+                                        <option value="lycée" data-i18n="lycée">Lycée</option>
+                                        <option value="autre" data-i18n="other">Autre</option>
+                                        <option value="non scolarisé" data-i18n="non scolarisé">Non scolarisé</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2 hidden" id="divAutreNiveau">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="specify_level">Préciser le
+                                        niveau</label>
+                                    <input type="text" name="autre_niveau_precision" class="input-modern"
+                                        placeholder="Précisez..." data-i18n="specify_placeholder">
+                                </div>
+                                <div class="col-span-2 hidden" id="divAnneeScolaire">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="school_year">Année scolaire</label>
+                                    <select name="annee_scolaire" id="selectAnneeScolaire" class="input-modern">
+                                        <option value="" data-i18n="select">Sélectionner...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne Droite: Santé & Admin -->
+                    <div class="space-y-6">
+
+                        <!-- État de Santé -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-red-100 text-red-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="health">Santé</h3>
+                                    <p class="text-sm text-gray-500" data-i18n="medical_conditions">Conditions médicales
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Maladie -->
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-sm font-medium text-gray-700"
+                                            data-i18n="chronic_disease">Maladie Chronique</label>
+                                        <input type="checkbox" id="checkMaladie" name="maladie_chronique_check"
+                                            class="w-4 h-4 text-red-600 rounded"
+                                            onchange="toggleField('maladieDetails', this.checked)">
+                                    </div>
+                                    <div id="maladieDetails" class="hidden">
+                                        <input type="text" name="type_maladie" placeholder="Type de maladie..."
+                                            class="input-modern text-sm" data-i18n="disease_placeholder">
+                                    </div>
+                                </div>
+
+                                <!-- Handicap -->
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-sm font-medium text-gray-700"
+                                            data-i18n="disability">Situation de Handicap</label>
+                                        <input type="checkbox" id="checkHandicap" name="handicap_check"
+                                            class="w-4 h-4 text-red-600 rounded"
+                                            onchange="toggleField('handicapDetails', this.checked)">
+                                    </div>
+                                    <div id="handicapDetails" class="hidden">
+                                        <input type="text" name="type_handicap" placeholder="Type de handicap..."
+                                            class="input-modern text-sm" data-i18n="disability_placeholder">
+                                    </div>
+                                </div>
+
+                                <!-- Prise en charge -->
+
+                            </div>
+                        </div>
+
+                        <div class="card p-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="city">Ville</label>
+                            <select name="ville_select" class="input-modern" onchange="toggleAutreVille(this.value)">
+                                <option value="" data-i18n="select">Sélectionner une ville...</option>
+                                <option value="Bouarfa" data-i18n="city_bouarfa">Bouarfa</option>
+                                <option value="Tendrara" data-i18n="city_tendrara">Tendrara</option>
+                                <option value="Maatarka" data-i18n="city_maatarka">Maatarka</option>
+                                <option value="Autre" data-i18n="other">Autre</option>
+                            </select>
+                            <div id="autreVilleDiv" class="hidden mt-2">
+                                <input type="text" name="ville_text" placeholder="Préciser la ville..."
+                                    class="input-modern" data-i18n="city_placeholder">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <input type="hidden" name="maladie_chronique">
+                <input type="hidden" name="handicap">
+                <input type="hidden" name="prise_en_charge_medicale" value="false">
+
+            </form>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script src="js/orphelin-form.js?v=8"></script>
+</body>
+
+</html>

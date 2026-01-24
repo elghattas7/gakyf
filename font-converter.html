@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Convertisseur de police pour PDF</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Préparation de la police Arial (Arabic)</h2>
+        <p>Utilisez cet outil pour convertir votre fichier <b>Arial Unicode MS.ttf</b> (ou Arial Arabic) en texte
+            utilisable par l'application.</p>
+
+        <input type="file" id="fontFile" accept=".ttf">
+        <div id="status"></div>
+
+        <p>Une fois le fichier sélectionné, copiez la chaîne ci-dessous et envoyez-la moi :</p>
+        <textarea id="result" readonly onclick="this.select()"></textarea>
+    </div>
+
+    <script>
+        document.getElementById('fontFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64 = event.target.result;
+                document.getElementById('result').value = base64;
+                document.getElementById('status').innerHTML = '<p class="success">Fichier converti avec succès ! Copiez le texte ci-dessous.</p>';
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+
+</html>

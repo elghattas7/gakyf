@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire Veuve - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Alpine.js pour une gestion d'état UI plus fluide si besoin, mais on reste en vanilla pour l'instant -->
+    <style>
+        .form-section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" id="pageTitle" data-i18n="add_widow">Ajouter une Veuve</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="new_beneficiary">Créez un nouveau dossier bénéficiaire
+                        complet</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="veuves.html" class="btn btn-secondary" data-i18n="cancel">Annuler</a>
+                    <button type="button" onclick="document.getElementById('veuveForm').requestSubmit()"
+                        class="btn btn-primary" data-i18n="save_btn">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Enregistrer le dossier
+                    </button>
+                </div>
+            </div>
+
+            <form id="veuveForm" class="space-y-6 max-w-7xl mx-auto">
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Colonne Gauche: Identité & Contact -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Informations Personnelles -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-blue-100 text-blue-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="identity_contact">Identité &
+                                        Contact</h3>
+                                    <p class="text-sm text-gray-500" data-i18n="basic_info_widow">Informations de base
+                                        de la veuve</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="full_name">Nom Complet <span class="text-red-500">*</span></label>
+                                    <input type="text" name="nom_complet" required class="input-modern"
+                                        placeholder="Ex: Fatima Zahra Alami" data-i18n="fullname_placeholder">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="identification">C.I.N <span class="text-red-500">*</span></label>
+                                    <input type="text" name="numero_identification" required class="input-modern"
+                                        placeholder="Ex: AB123456" data-i18n="cin_placeholder">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="birth_date">Date de
+                                        Naissance</label>
+                                    <input type="date" name="date_naissance" class="input-modern">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="phone">Téléphone</label>
+                                    <input type="tel" name="telephone" class="input-modern" placeholder="06 00 00 00 00"
+                                        data-i18n="phone_placeholder">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="city">Ville</label>
+                                    <select name="ville_select" class="input-modern"
+                                        onchange="toggleAutreVille(this.value)">
+                                        <option value="" data-i18n="select">Sélectionner une ville...</option>
+                                        <option value="Bouarfa" data-i18n="city_bouarfa">Bouarfa</option>
+                                        <option value="Tendrara" data-i18n="city_tendrara">Tendrara</option>
+                                        <option value="Maatarka" data-i18n="city_maatarka">Maatarka</option>
+                                        <option value="Autre" data-i18n="other">Autre</option>
+                                    </select>
+                                    <div id="autreVilleDiv" class="hidden mt-2">
+                                        <input type="text" name="ville_text" placeholder="Préciser la ville..."
+                                            class="input-modern" data-i18n="city_placeholder">
+                                    </div>
+                                </div>
+
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="address">Adresse de
+                                        Résidence</label>
+                                    <textarea name="adresse_residence" rows="2" class="input-modern"
+                                        placeholder="Adresse complète..." data-i18n="address_placeholder"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Situation Familiale -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-purple-100 text-purple-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="fam_situation">Situation
+                                        Familiale</h3>
+                                    <p class="text-sm text-gray-500" data-i18n="spouse_orphan_details">Détails sur le
+                                        défunt mari et les enfants</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="spouse_name">Nom du Mari
+                                        Décédé</label>
+                                    <input type="text" name="nom_mari_decede" class="input-modern">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="death_date">Date de Décès</label>
+                                    <input type="date" name="date_deces" class="input-modern">
+                                </div>
+
+
+                                <div
+                                    class="p-4 bg-gray-50 rounded-lg col-span-2 grid grid-cols-2 gap-4 border border-gray-100">
+                                    <div class="text-center">
+                                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-2"
+                                            data-i18n="total_children">Total
+                                            Enfants</label>
+                                        <input type="number" name="nombre_enfants" min="0" value="0"
+                                            class="input-modern text-center font-bold text-lg">
+                                    </div>
+                                    <div class="text-center">
+                                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-2"
+                                            data-i18n="orphans_count">Orphelins</label>
+                                        <input type="number" name="nombre_enfants_orphelins" min="0" value="0"
+                                            class="input-modern text-center font-bold text-lg text-blue-600">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne Droite: Situation Éco & Admin -->
+                    <div class="space-y-6">
+
+                        <!-- Situation Économique -->
+                        <div class="card p-6">
+                            <div class="section-header">
+                                <div class="form-section-icon bg-green-100 text-green-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800" data-i18n="eco_situation">Situation Éco
+                                    </h3>
+                                    <p class="text-sm text-gray-500" data-i18n="revenu_housing">Revenus & Logement</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="profession">Situation Pro.</label>
+                                    <select name="situation_professionnelle" class="input-modern">
+                                        <option value="" data-i18n="select">Sélectionner...</option>
+                                        <option value="Sans emploi" data-i18n="unemployed">Sans emploi</option>
+                                        <option value="Emploi occasionnelle" data-i18n="occasional">Emploi occasionnelle
+                                        </option>
+                                        <option value="Emploi permanent" data-i18n="permanent">Emploi permanent</option>
+                                    </select>
+                                </div>
+
+                                <div>
+
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1"
+                                            data-i18n="monthly_revenu">Revenu (DH)</label>
+                                        <input type="number" name="revenu_mensuel" min="0" class="input-modern">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1"
+                                            data-i18n="rent">Loyer (DH)</label>
+                                        <input type="number" name="montant_loyer_mensuel" min="0" class="input-modern">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                                        data-i18n="housing_type">Logement</label>
+                                    <select name="type_logement" class="input-modern">
+                                        <option value="Propriétaire" data-i18n="owner">Propriétaire</option>
+                                        <option value="Locataire" data-i18n="tenant">Locataire</option>
+                                        <option value="Logement familial" data-i18n="family_housing">Logement familial
+                                        </option>
+                                        <option value="Précaire" data-i18n="precarious">Précaire</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aides Sociales -->
+                        <div class="card p-6">
+                            <h3 class="text-md font-bold text-gray-800 mb-4 pb-2 border-b"
+                                data-i18n="current_aids_actual">Aides Actuelles</h3>
+
+                            <div class="space-y-4">
+                                <!-- Pension -->
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-sm font-medium text-gray-700"
+                                            data-i18n="retirement_pension">Pension Retraite</label>
+                                        <input type="checkbox" id="checkPension" name="pension_retraite_check"
+                                            class="w-4 h-4 text-blue-600 rounded"
+                                            onchange="toggleField('pensionAmount', this.checked)">
+                                    </div>
+                                    <div id="pensionAmount" class="hidden animate-fade-in">
+                                        <input type="number" name="montant_pension_retraite" placeholder="Montant DH"
+                                            class="input-modern text-sm">
+                                    </div>
+                                </div>
+
+                                <!-- Soutien Social -->
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="text-sm font-medium text-gray-700"
+                                            data-i18n="direct_social_support">Soutien Social Direct</label>
+                                        <input type="checkbox" id="checkSoutien" name="soutien_social_check"
+                                            class="w-4 h-4 text-blue-600 rounded"
+                                            onchange="toggleField('soutienAmount', this.checked)">
+                                    </div>
+                                    <div id="soutienAmount" class="hidden animate-fade-in">
+                                        <input type="number" name="montant_soutien_social" placeholder="Montant DH"
+                                            class="input-modern text-sm">
+                                    </div>
+                                </div>
+
+                                <!-- Couverture Santé -->
+                                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <label class="text-sm font-medium text-gray-700 block mb-2"
+                                        data-i18n="health_coverage">Couverture Santé</label>
+                                    <select name="couverture_sante" class="input-modern">
+                                        <option value="" data-i18n="none">Aucune</option>
+                                        <option value="AMO Tadamoune" data-i18n="amo_tadamoune">AMO Tadamoune</option>
+                                        <option value="AMO secteur publique" data-i18n="amo_public">AMO secteur publique
+                                        </option>
+                                        <option value="AMO secteur privé" data-i18n="amo_private">AMO secteur privé
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Infos Admin -->
+                            <div class="mt-6 pt-4 border-t">
+                                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="rib">Numéro de
+                                    compte bancaire
+                                    (RIB)</label>
+                                <input type="text" name="rib" class="input-modern bg-blue-50 border-blue-100"
+                                    placeholder="24 chiffres" data-i18n="rib_placeholder">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Hidden inputs for boolean values -->
+                <input type="hidden" name="pension_retraite">
+                <input type="hidden" name="soutien_social_direct">
+                <input type="hidden" name="couverture_sante">
+                <input type="hidden" name="aide_financiere_supplementaire" value="false">
+
+            </form>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script src="js/veuve-form.js?v=18"></script>
+
+    <style>
+        .animate-fade-in {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</body>
+
+</html>

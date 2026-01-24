@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Gestion Association</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <h2 class="page-title mb-6" data-i18n="settings">Paramètres du compte</h2>
+
+            <div class="max-w-xl mx-auto">
+                <div class="card p-8">
+                    <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800" data-i18n="change_password">Changer de mot de
+                                passe</h3>
+                            <p class="text-sm text-gray-500" data-i18n="secure_account">Sécurisez votre compte</p>
+                        </div>
+                    </div>
+
+                    <form id="passwordForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="old_password">Ancien
+                                mot de passe</label>
+                            <input type="password" name="old_password" required class="input-modern">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="new_password">Nouveau
+                                mot de passe</label>
+                            <input type="password" name="new_password" required class="input-modern" minlength="6">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1"
+                                data-i18n="confirm_password">Confirmer le mot de passe</label>
+                            <input type="password" name="confirm_password" required class="input-modern" minlength="6">
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="btn btn-primary w-full justify-center">
+                                <span data-i18n="update_password">Mettre à jour</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await auth.protectPage();
+            await i18n.init();
+            await layout.initLayout();
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const oldPass = formData.get('old_password');
+            const newPass = formData.get('new_password');
+            const confirmPass = formData.get('confirm_password');
+
+            if (newPass !== confirmPass) {
+                utils.showNotification('Les nouveaux mots de passe ne correspondent pas', 'error');
+                return;
+            }
+
+            try {
+                // Pour changer de mot de passe avec Supabase
+                const { data, error } = await supabase.auth.updateUser({
+                    password: newPass
+                });
+
+                if (error) {
+                    utils.showNotification(error.message || 'Erreur lors de la mise à jour', 'error');
+                    return;
+                }
+
+                utils.showNotification('Mot de passe mis à jour avec succès', 'success');
+                e.target.reset();
+            } catch (err) {
+                console.error('Erreur password reset:', err);
+                utils.showNotification('Une erreur inattendue est survenue', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

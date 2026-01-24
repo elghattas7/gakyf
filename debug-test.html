@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Débogage - Chargement des Données</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">🔍 Test de Débogage - Chargement des Données</h1>
+
+        <div id="results" class="space-y-4">
+            <div class="text-gray-500">Chargement des tests...</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <script>
+        async function runDiagnostics() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            function addResult(title, status, details) {
+                const statusColor = status === 'success' ? 'green' : status === 'error' ? 'red' : 'yellow';
+                const statusIcon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⚠️';
+
+                resultsDiv.innerHTML += `
+                    <div class="border-l-4 border-${statusColor}-500 bg-${statusColor}-50 p-4 rounded">
+                        <h3 class="font-bold text-${statusColor}-800">${statusIcon} ${title}</h3>
+                        <pre class="mt-2 text-sm text-gray-700 overflow-auto">${details}</pre>
+                    </div>
+                `;
+            }
+
+            // Test 1: Vérifier la connexion Supabase
+            try {
+                addResult('Configuration Supabase', 'success',
+                    `URL: ${supabase.supabaseUrl}\nClé configurée: Oui`);
+            } catch (e) {
+                addResult('Configuration Supabase', 'error', e.message);
+            }
+
+            // Test 2: Vérifier la session utilisateur
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+
+                if (session) {
+                    addResult('Session Utilisateur', 'success',
+                        `Email: ${session.user.email}\nID: ${session.user.id}\nRôle (metadata): ${session.user.user_metadata?.role || 'Non défini'}`);
+                } else {
+                    addResult('Session Utilisateur', 'error', 'Aucune session active - Utilisateur non connecté');
+                }
+            } catch (e) {
+                addResult('Session Utilisateur', 'error', e.message);
+            }
+
+            // Test 3: Vérifier le profil utilisateur
+            try {
+                const profile = await window.supabaseClient.getCurrentUserProfile();
+                if (profile) {
+                    addResult('Profil Utilisateur', 'success',
+                        JSON.stringify(profile, null, 2));
+                } else {
+                    addResult('Profil Utilisateur', 'error',
+                        'Profil non trouvé dans la table profiles');
+                }
+            } catch (e) {
+                addResult('Profil Utilisateur', 'error', e.message);
+            }
+
+            // Test 4: Vérifier canWrite()
+            try {
+                const canWrite = await window.supabaseClient.canWrite();
+                addResult('Permission canWrite()', canWrite ? 'success' : 'warning',
+                    `Peut écrire: ${canWrite}`);
+            } catch (e) {
+                addResult('Permission canWrite()', 'error', e.message);
+            }
+
+            // Test 5: Tester la requête orphelins
+            try {
+                const { data, error, count } = await supabase
+                    .from('orphelins')
+                    .select('*, veuves(nom_complet)', { count: 'exact' });
+
+                if (error) throw error;
+
+                addResult('Requête Orphelins', 'success',
+                    `Nombre d'orphelins: ${count || data?.length || 0}\nPremier résultat: ${JSON.stringify(data?.[0] || 'Aucun', null, 2)}`);
+            } catch (e) {
+                addResult('Requête Orphelins', 'error',
+                    `Message: ${e.message}\nCode: ${e.code}\nDétails: ${e.details || 'N/A'}\nHint: ${e.hint || 'N/A'}`);
+            }
+
+            // Test 6: Tester la requête veuves
+            try {
+                const { data, error, count } = await supabase
+                    .from('veuves')
+                    .select('*', { count: 'exact' });
+
+                if (error) throw error;
+
+                addResult('Requête Veuves', 'success',
+                    `Nombre de veuves: ${count || data?.length || 0}\nPremier résultat: ${JSON.stringify(data?.[0] || 'Aucun', null, 2)}`);
+            } catch (e) {
+                addResult('Requête Veuves', 'error',
+                    `Message: ${e.message}\nCode: ${e.code}\nDétails: ${e.details || 'N/A'}\nHint: ${e.hint || 'N/A'}`);
+            }
+
+            // Test 7: Tester la requête dons
+            try {
+                const { data, error } = await supabase
+                    .from('dons')
+                    .select('*')
+                    .limit(1);
+
+                if (error) throw error;
+
+                addResult('Requête Dons', 'success',
+                    `Nombre de dons (sample): ${data?.length || 0}`);
+            } catch (e) {
+                addResult('Requête Dons', 'error',
+                    `Message: ${e.message}\nCode: ${e.code}`);
+            }
+
+            // Test 8: Vérifier les politiques RLS
+            addResult('Politiques RLS', 'warning',
+                'Si les requêtes ci-dessus échouent avec des erreurs de permission, vérifiez les politiques RLS dans Supabase:\n' +
+                '1. Allez dans Authentication > Policies\n' +
+                '2. Assurez-vous que les tables ont des politiques SELECT activées\n' +
+                '3. Les politiques doivent autoriser les utilisateurs authentifiés à lire les données');
+        }
+
+        // Exécuter les diagnostics au chargement
+        window.addEventListener('DOMContentLoaded', runDiagnostics);
+    </script>
+</body>
+
+</html>

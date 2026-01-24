@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="audit_trail">Journal d'Audit - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Export libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="audit_trail">Journal d'Audit</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="audit_trail_subtitle">Historique complet des actions
+                        utilisateurs</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="auditTrailModule.exportLogs()" class="btn btn-primary">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        <span data-i18n="export">Exporter</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="start_date">Date
+                            début</label>
+                        <input type="date" id="filterStartDate" class="input-modern"
+                            onchange="auditTrailModule.applyFilters()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="end_date">Date
+                            fin</label>
+                        <input type="date" id="filterEndDate" class="input-modern"
+                            onchange="auditTrailModule.applyFilters()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="login">Login</label>
+                        <select id="filterUser" class="input-modern" onchange="auditTrailModule.applyFilters()">
+                            <option value="" data-i18n="all_users">Tous les utilisateurs</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="action_type">Type
+                            d'action</label>
+                        <select id="filterAction" class="input-modern" onchange="auditTrailModule.applyFilters()">
+                            <option value="" data-i18n="all_actions">Toutes les actions</option>
+                            <option value="CREATE">CREATE</option>
+                            <option value="UPDATE">UPDATE</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="EXPORT">EXPORT</option>
+                            <option value="LOGIN">LOGIN</option>
+                            <option value="LOGOUT">LOGOUT</option>
+                            <option value="VIEW">VIEW</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <input type="text" id="searchInput" class="input-modern"
+                        placeholder="Rechercher dans les détails..." data-i18n="search_placeholder"
+                        oninput="auditTrailModule.applyFilters()">
+                </div>
+            </div>
+
+            <!-- Audit Logs Table -->
+            <div class="card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="timestamp">Horodatage</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="user">Utilisateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="action_type">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="entity">Entité</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="details">Détails</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    data-i18n="ip_address">IP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="paginationContainer" class="px-6 py-4 border-t border-gray-200"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/export-utils.js"></script>
+    <script src="js/audit-logger.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        const auditTrailModule = {
+            allLogs: [],
+            filteredLogs: [],
+            pagination: null,
+
+            async init() {
+                await auth.requireAdmin();
+                await layout.initLayout('audit-trail.html');
+                await this.loadLogs();
+                await this.loadUserFilter();
+                this.setDefaultDates();
+            },
+
+            setDefaultDates() {
+                const today = new Date();
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+                document.getElementById('filterEndDate').valueAsDate = today;
+                document.getElementById('filterStartDate').valueAsDate = oneMonthAgo;
+            },
+
+            async loadLogs() {
+                utils.showLoader();
+                try {
+                    const { data, error } = await supabase
+                        .from('audit_logs')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    this.allLogs = data || [];
+                    this.applyFilters();
+                } catch (e) {
+                    console.error('Error loading logs:', e);
+                    utils.showNotification('Erreur lors du chargement des logs', 'error');
+                } finally {
+                    utils.hideLoader();
+                }
+            },
+
+            async loadUserFilter() {
+                try {
+                    const { data } = await supabase
+                        .from('audit_logs')
+                        .select('user_email');
+
+                    if (data) {
+                        const users = [...new Set(data.map(l => l.user_email))];
+                        const select = document.getElementById('filterUser');
+                        users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user;
+                            option.textContent = user;
+                            select.appendChild(option);
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error loading users:', e);
+                }
+            },
+
+            applyFilters() {
+                const startDate = document.getElementById('filterStartDate').value;
+                const endDate = document.getElementById('filterEndDate').value;
+                const user = document.getElementById('filterUser').value;
+                const action = document.getElementById('filterAction').value;
+                const search = document.getElementById('searchInput').value.toLowerCase();
+
+                this.filteredLogs = this.allLogs.filter(log => {
+                    const logDate = new Date(log.created_at).toISOString().split('T')[0];
+
+                    if (startDate && logDate < startDate) return false;
+                    if (endDate && logDate > endDate) return false;
+                    if (user && log.user_email !== user) return false;
+                    if (action && log.action_type !== action) return false;
+                    if (search) {
+                        const detailsStr = JSON.stringify(log.details || {}).toLowerCase();
+                        if (!detailsStr.includes(search) &&
+                            !log.entity_type?.toLowerCase().includes(search)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+
+                if (!this.pagination || this.pagination.totalItems !== this.filteredLogs.length) {
+                    this.pagination = new utils.Pagination(this.filteredLogs.length, 20);
+                }
+
+                this.displayLogs();
+            },
+
+            displayLogs() {
+                const tbody = document.getElementById('logsTableBody');
+
+                if (!this.filteredLogs || this.filteredLogs.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-gray-500">
+                                Aucun log trouvé
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('paginationContainer').innerHTML = '';
+                    return;
+                }
+
+                const start = this.pagination.offset;
+                const end = start + this.pagination.itemsPerPage;
+                const paginatedData = this.filteredLogs.slice(start, end);
+
+                let html = '';
+                paginatedData.forEach(log => {
+                    const actionColor = {
+                        'CREATE': 'text-green-600',
+                        'UPDATE': 'text-blue-600',
+                        'DELETE': 'text-red-600',
+                        'EXPORT': 'text-purple-600',
+                        'LOGIN': 'text-gray-600',
+                        'LOGOUT': 'text-gray-600',
+                        'VIEW': 'text-indigo-600'
+                    }[log.action_type] || 'text-gray-600';
+
+                    const details = log.details ? JSON.stringify(log.details, null, 2) : '-';
+                    const shortDetails = details.length > 100 ? details.substring(0, 100) + '...' : details;
+
+                    html += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${utils.formatDateTime(log.created_at)}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${log.user_email}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${actionColor}">
+                                    ${log.action_type}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${log.entity_type || '-'}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                <pre class="text-xs">${shortDetails}</pre>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${log.ip_address || '-'}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                this.pagination.renderPagination('paginationContainer', 'auditTrailModule.applyFilters');
+            },
+
+            async exportLogs() {
+                const format = await exportUtils.promptExportFormat();
+                if (!format) return;
+
+                const headers = [
+                    i18n.t('timestamp') || 'Horodatage',
+                    i18n.t('user') || 'Utilisateur',
+                    i18n.t('action_type') || 'Action',
+                    i18n.t('entity') || 'Entité',
+                    i18n.t('details') || 'Détails',
+                    i18n.t('ip_address') || 'IP'
+                ];
+
+                const rows = this.filteredLogs.map(log => [
+                    utils.formatDateTime(log.created_at),
+                    log.user_email,
+                    log.action_type,
+                    log.entity_type || '-',
+                    JSON.stringify(log.details || {}),
+                    log.ip_address || '-'
+                ]);
+
+                const data = [headers, ...rows];
+
+                if (format === 'excel') {
+                    exportUtils.exportToExcel(data, 'audit_logs', 'Audit Logs');
+                } else if (format === 'word') {
+                    await exportUtils.exportToWord(data, 'audit_logs', i18n.t('audit_trail') || 'Journal d\'Audit');
+                } else {
+                    // PDF export would go here
+                    utils.showNotification('Export PDF en cours de développement', 'info');
+                }
+            }
+        };
+
+        auditTrailModule.init();
+    </script>
+</body>
+
+</html>

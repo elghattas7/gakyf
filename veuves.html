@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="widows">Gestion des Veuves - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Export libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+
+</head>
+
+<body class="bg-gray-50">
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content with-sidebar">
+        <div id="header"></div>
+
+        <main class="p-6">
+            <div class="mb-12 flex flex-col items-center text-center">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-2" data-i18n="widows">Gestion des Veuves</h2>
+                <p class="text-gray-600 mb-8 max-w-lg" data-i18n="widows_list_subtitle">Liste complète des veuves
+                    enregistrées</p>
+                <a href="veuve-form.html"
+                    class="btn-primary no-print !py-4 !px-10 !text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                    data-i18n="add_widow">
+                    <svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Ajouter une veuve
+                </a>
+            </div>
+
+            <!-- Filtres et recherche -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6 no-print">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="label" data-i18n="search">Recherche</label>
+                        <input type="text" id="searchInput" data-i18n="search_placeholder"
+                            placeholder="Nom, CIN, téléphone..." class="input-field">
+                    </div>
+                    <div>
+                        <label class="label" data-i18n="city">Ville</label>
+                        <select id="villeFilter" class="input-field">
+                            <option value="" data-i18n="all_cities">Toutes les villes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label" data-i18n="sort_by">Trier par</label>
+                        <select id="sortBy" class="input-field">
+                            <option value="nom_complet" data-i18n="full_name_sort">Nom</option>
+                            <option value="revenu_mensuel" data-i18n="income_sort">Revenu</option>
+                            <option value="note" data-i18n="note_priority">Note (Priorité)</option>
+                            <option value="type_logement" data-i18n="housing_sort">Type Logement</option>
+                            <option value="soutien_social_direct" data-i18n="support_sort">Soutien Social</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button onclick="veuvesModule.exportVeuvesPDF()"
+                            class="btn-secondary flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                            data-i18n="download_list">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Télécharger la liste
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des veuves -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-3" data-i18n="fullname_cin">Nom</th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="phone">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="city">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="housing">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="support">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="orphans_column">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="note_priority">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 text-center" data-i18n-title="income_column">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                </th>
+                                <th class="px-2 py-3 no-print text-center" data-i18n="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="veuvesTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center py-8">
+                                    <div class="spinner w-8 h-8 mx-auto"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="p-4 border-t no-print"></div>
+    </div>
+    </main>
+    </div>
+
+    <!-- PDF & Export Dependencies -->
+    <!-- PDF & Export Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/logo-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <!-- <script src="js/config.js"></script> -->
+    <!-- <script src="js/supabase-client.js"></script> -->
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/export-utils.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/veuves.js"></script>
+
+    <script>
+        // Initialiser la page
+        (async () => {
+            await auth.protectPage();
+            await auth.checkPagePermission(['admin', 'président', 'vice-président', 'secrétaire', 'trésorier', 'conseiller', 'gestionnaire', 'membre']);
+            await layout.initLayout('veuves.html');
+
+            // Charger les filtres
+            await veuvesModule.loadVillesFilter();
+
+            // Charger les veuves
+            await veuvesModule.loadVeuves();
+
+            // Hide add button if not allowed to write
+            const canWrite = await auth.canWrite();
+            const addButton = document.querySelector('a[href="veuve-form.html"]');
+            if (addButton && !canWrite) {
+                addButton.classList.add('hidden');
+            }
+        })();
+
+        // Recherche avec debounce
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', debounce((e) => {
+            veuvesModule.currentFilters.search = e.target.value;
+            veuvesModule.loadVeuves();
+        }, 500));
+
+        // Filtre ville
+        document.getElementById('villeFilter').addEventListener('change', (e) => {
+            veuvesModule.currentFilters.ville = e.target.value;
+            veuvesModule.loadVeuves();
+        });
+
+        // Tri
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            veuvesModule.currentFilters.sortBy = e.target.value;
+            veuvesModule.loadVeuves();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion Association</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .input-group:focus-within .input-icon {
+            color: #3b82f6;
+        }
+
+        [dir="rtl"] .input-icon-left {
+            left: auto;
+            right: 0.75rem;
+        }
+
+        [dir="rtl"] .input-with-icon {
+            padding-left: 0.75rem;
+            padding-right: 2.5rem;
+        }
+
+        [dir="ltr"] .input-icon-left {
+            left: 0.75rem;
+        }
+
+        [dir="ltr"] .input-with-icon {
+            padding-left: 2.5rem;
+            padding-right: 0.75rem;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: #3b82f6;
+        }
+
+        /* RTL specific for language selector */
+        [dir="rtl"] .language-selector {
+            right: auto;
+            left: 1rem;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Language Selector -->
+    <div class="absolute top-4 right-4 z-20 language-selector">
+        <div
+            class="relative flex items-center bg-white/40 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/30 shadow-sm">
+            <i data-lucide="languages" class="w-4 h-4 text-gray-700 mr-2"></i>
+            <select onchange="i18n.setLanguage(this.value)" id="langSelect"
+                class="bg-transparent border-none text-gray-800 text-sm font-medium focus:ring-0 cursor-pointer outline-none">
+                <option value="fr">Français</option>
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-3xl p-8 w-full max-w-md transform transition-all duration-500 hover:scale-[1.01]">
+        <!-- Logo et titre -->
+        <div class="text-center mb-10">
+            <div class="w-24 h-24 mx-auto mb-6 bg-white rounded-2xl p-4 shadow-inner flex items-center justify-center">
+                <img src="logoAkyf.jpg" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2" data-i18n="app_name">Kafil Al Yatim</h1>
+            <p class="text-gray-600 text-sm" data-i18n="login_welcome">Veuillez vous connecter pour continuer</p>
+        </div>
+
+        <!-- Formulaire de connexion -->
+        <form id="loginForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="login" class="block text-sm font-semibold text-gray-700 mb-1" data-i18n="login">
+                    Identifiant
+                </label>
+                <div class="relative input-group">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none input-icon-left">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-400 input-icon transition-colors"></i>
+                    </div>
+                    <input type="text" id="login" name="login" required
+                        class="input-with-icon w-full py-3 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                        data-i18n="login_placeholder" placeholder="Nom d'utilisateur">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <label for="password" class="block text-sm font-semibold text-gray-700" data-i18n="password">
+                        Mot de passe
+                    </label>
+                </div>
+                <div class="relative input-group">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none input-icon-left">
+                        <i data-lucide="lock" class="w-5 h-5 text-gray-400 input-icon transition-colors"></i>
+                    </div>
+                    <input type="password" id="password" name="password" required
+                        class="input-with-icon w-full py-3 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                        placeholder="••••••••">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <button type="button" id="togglePassword"
+                            class="text-gray-400 hover:text-blue-500 focus:outline-none transition-colors">
+                            <i data-lucide="eye" id="eyeIcon" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="loginBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center">
+                <span data-i18n="login">Se connecter</span>
+            </button>
+        </form>
+
+        <!-- Message d'erreur -->
+        <div id="errorMessage"
+            class="mt-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl hidden flex items-center">
+            <i data-lucide="alert-circle" class="w-5 h-5 mr-2 flex-shrink-0"></i>
+            <span id="errorText"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // DIAGNOSTIC: Check if auth.js was loaded
+        if (typeof auth === 'undefined') {
+            alert('DEBUG: auth object missing after script tag. Checking file reachability...');
+            fetch('js/auth.js')
+                .then(response => {
+                    alert('DEBUG: Fetch js/auth.js status: ' + response.status);
+                    if (response.ok) {
+                        return response.text().then(text => {
+                            alert('DEBUG: File content start: ' + text.substring(0, 50));
+                        });
+                    }
+                })
+                .catch(err => alert('DEBUG: Fetch failed completely: ' + err.message));
+        } else {
+            alert('DEBUG: auth object exists! (Logic error in previous alerts?) check: ' + Object.keys(auth));
+        }
+    </script>
+    <script src="js/utils.js"></script>
+
+    <!-- i18n Scripts -->
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // Init i18n
+        document.addEventListener('DOMContentLoaded', async () => {
+            await i18n.init();
+
+            // Sync selector
+            const savedLang = localStorage.getItem('app_language') || 'fr';
+            const sel = document.getElementById('langSelect');
+            if (sel) sel.value = savedLang;
+
+            // Handle Password Visibility Toggle
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            toggleBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Update icon
+                if (type === 'text') {
+                    eyeIcon.setAttribute('data-lucide', 'eye-off');
+                } else {
+                    eyeIcon.setAttribute('data-lucide', 'eye');
+                }
+                lucide.createIcons();
+            });
+        });
+
+        // Check if already logged in
+        (async () => {
+            const isAuthenticated = await auth.checkAuth();
+            if (isAuthenticated) {
+                window.location.href = 'dashboard.html';
+            }
+        })();
+
+        // Handle Login Submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert('DEBUG: 2. Form submit detected. Starting login process...');
+
+            try {
+                // BYPASS: Don't crash if i18n is missing
+                const loadingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('loading') : 'Chargement';
+
+                const login = document.getElementById('login').value;
+                const password = document.getElementById('password').value;
+                const loginBtn = document.getElementById('loginBtn');
+                const errorMessage = document.getElementById('errorMessage');
+                const errorText = document.getElementById('errorText');
+
+                if (!loginBtn) throw new Error('DOM Element #loginBtn missing');
+
+                loginBtn.disabled = true;
+                const originalContent = loginBtn.innerHTML;
+
+                loginBtn.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    ${loadingText}...
+                `;
+
+                if (errorMessage) errorMessage.classList.add('hidden');
+
+                alert('DEBUG: 3. About to call auth.login()...');
+
+                // Ensure auth exists
+                if (typeof auth === 'undefined') {
+                    throw new Error('Auth object is undefined! auth.js failed to load.');
+                }
+
+                const result = await auth.login(login, password);
+                alert('DEBUG: 6. auth.login() returned. Success: ' + result.success);
+
+                if (result.success) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Connexion réussie !', 'success');
+                    } else {
+                        alert('Connexion réussie!');
+                    }
+                    setTimeout(() => {
+                        auth.redirectByRole();
+                    }, 500);
+                } else {
+                    if (errorText) errorText.textContent = result.error || 'Erreur de connexion';
+                    if (errorMessage) errorMessage.classList.remove('hidden');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalContent;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('DEBUG: CRITICAL EXCEPTION in submit handler: ' + error.message);
+
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Retry Login';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enregistrer Don - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="register_donation">Enregistrer un Don</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="new_contribution">Nouvelle contribution financière</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="dons.html" class="btn btn-secondary" data-i18n="cancel">Annuler</a>
+                    <button type="button" onclick="document.getElementById('donForm').requestSubmit()"
+                        class="btn btn-primary" data-i18n="save_btn">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <form id="donForm" class="card p-8">
+
+                    <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800" data-i18n="transaction_details">Détails de la
+                                transaction</h3>
+                            <p class="text-sm text-gray-500" data-i18n="transaction_info">Renseignez les informations du
+                                donateur et le montant</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="donor_name">Nom du
+                                Donateur <span class="text-red-500">*</span></label>
+                            <input type="text" name="nom_donateur" required class="input-modern"
+                                placeholder="Nom complet ou Organisation" data-i18n="donor_placeholder">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="amount">Montant <span
+                                    class="text-red-500">*</span></label>
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input type="number" name="montant" required min="1"
+                                        class="input-modern font-bold text-lg text-green-700" placeholder="0.00">
+                                </div>
+                                <select name="devise" class="input-modern w-24 font-bold" data-i18n-no-translate>
+                                    <option value="EUR">EUR (€)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1"
+                                data-i18n="year_column">Année</label>
+                            <select name="annee_don" required class="input-modern">
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                                <option value="2031">2031</option>
+                                <option value="2032">2032</option>
+                                <option value="2033">2033</option>
+                                <option value="2034">2034</option>
+                                <option value="2035">2035</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="pays">Pays</label>
+                            <select name="pays_select" class="input-modern" onchange="toggleAutrePays(this.value)">
+                                <option value="Maroc" data-i18n="maroc" selected>Maroc</option>
+                                <option value="France" data-i18n="france">France</option>
+                                <option value="Espagne" data-i18n="espagne">Espagne</option>
+                                <option value="Belgique" data-i18n="belgique">Belgique</option>
+                                <option value="Allemagne" data-i18n="allemagne">Allemagne</option>
+                                <option value="Pays-Bas" data-i18n="pays_bas">Pays-Bas</option>
+                                <option value="Italie" data-i18n="italie">Italie</option>
+                                <option value="USA" data-i18n="usa">États-Unis</option>
+                                <option value="Canada" data-i18n="canada">Canada</option>
+                                <option value="Royaume-Uni" data-i18n="royaume_uni">Royaume-Uni</option>
+                                <option value="Arabie Saoudite" data-i18n="arabie_saoudite">Arabie Saoudite</option>
+                                <option value="Emirats Arabes Unis" data-i18n="emirats_arabes_unis">Émirats Arabes Unis
+                                </option>
+                                <option value="Qatar" data-i18n="qatar">Qatar</option>
+                                <option value="Autre" data-i18n="other">Autre</option>
+                            </select>
+                            <div id="autrePaysDiv" class="hidden mt-2">
+                                <input type="text" name="pays_text" placeholder="Préciser le pays..."
+                                    class="input-modern" data-i18n="specify_placeholder">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="nature_don">Nature de
+                                don</label>
+                            <select name="nature_don_select" class="input-modern"
+                                onchange="toggleNatureDon(this.value)">
+                                <option value="" data-i18n="select">Sélectionner...</option>
+                                <option value="Adhésion" data-i18n="adhesion">Adhésion</option>
+                                <option value="Zakat" data-i18n="zakat">Zakat</option>
+                                <option value="Sadaqa" data-i18n="sadaqa">Sadaqa</option>
+                                <option value="Autre" data-i18n="other">Autre</option>
+                            </select>
+                            <div id="autreNatureDiv" class="hidden mt-2">
+                                <input type="text" name="nature_don_text" placeholder="Préciser la nature..."
+                                    class="input-modern" data-i18n="specify_placeholder">
+                            </div>
+                        </div>
+
+                        <div id="adhesionOptions"
+                            class="col-span-2 hidden p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <label class="block text-sm font-bold text-blue-800 mb-2"
+                                data-i18n="adhesion_period">Période d'Adhésion</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <label class="flex items-center space-x-2"><input type="checkbox"
+                                        name="adhesion_annuelle" class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="annual">Annuelle</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_jan"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="jan">Janvier</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_feb"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="feb">Février</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_mar"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="mar">Mars</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_apr"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="apr">Avril</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_may"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="may">Mai</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_jun"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="jun">Juin</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_jul"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="jul">Juillet</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_aug"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="aug">Août</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_sep"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="sep">Septembre</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_oct"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="oct">Octobre</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_nov"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="nov">Novembre</span></label>
+                                <label class="flex items-center space-x-2"><input type="checkbox" name="adhesion_dec"
+                                        class="rounded text-blue-600"> <span class="text-sm"
+                                        data-i18n="dec">Décembre</span></label>
+                            </div>
+                        </div>
+
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1"
+                                data-i18n="description">Description / Notes</label>
+                            <textarea name="description" rows="3" class="input-modern" placeholder="..."
+                                data-i18n="notes_placeholder"></textarea>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await auth.protectPage();
+
+            if (!await auth.canWrite()) {
+                utils.showNotification('Accès refusé : permissions insuffisantes', 'error');
+                setTimeout(() => window.location.href = 'dons.html', 1500);
+                return;
+            }
+
+            await layout.initLayout('dons.html');
+
+            // Handle edit if ID exists
+            const urlParams = new URLSearchParams(window.location.search);
+            const donationId = urlParams.get('id');
+
+            if (donationId) {
+                await loadDonationData(donationId);
+            } else {
+                // Set default year to current
+                const currentYear = new Date().getUTCFullYear();
+                if (document.querySelector('[name="annee_don"] option[value="' + currentYear + '"]')) {
+                    document.querySelector('[name="annee_don"]').value = currentYear;
+                }
+
+                // Default nature to Adhésion
+                const natureSelect = document.querySelector('[name="nature_don_select"]');
+                natureSelect.value = 'Adhésion';
+                toggleNatureDon('Adhésion');
+            }
+        });
+
+        async function loadDonationData(id) {
+            utils.showLoader();
+            try {
+                const { data, error } = await supabase.from('dons').select('*').eq('id', id).single();
+                if (error) throw error;
+
+                const form = document.getElementById('donForm');
+
+                // Fill basic fields
+                form.nom_donateur.value = data.nom_donateur;
+                form.montant.value = data.montant;
+                form.annee_don.value = data.annee_don;
+                form.devise.value = data.devise || 'DH';
+                form.description.value = data.description || '';
+
+                // Nature Don
+                if (['Adhésion', 'Zakat', 'Sadaqa'].includes(data.nature_don)) {
+                    form.nature_don_select.value = data.nature_don;
+                } else if (data.nature_don) {
+                    form.nature_don_select.value = 'Autre';
+                    form.nature_don_text.value = data.nature_don;
+                    document.getElementById('autreNatureDiv').classList.remove('hidden');
+                }
+                toggleNatureDon(form.nature_don_select.value);
+
+                // Pays
+                const presetCountries = ['Maroc', 'France', 'Espagne', 'Belgique', 'Allemagne', 'Pays-Bas', 'Italie', 'USA', 'Canada', 'Royaume-Uni', 'Arabie Saoudite', 'Emirats Arabes Unis', 'Qatar'];
+                if (presetCountries.includes(data.pays)) {
+                    form.pays_select.value = data.pays;
+                } else if (data.pays) {
+                    form.pays_select.value = 'Autre';
+                    form.pays_text.value = data.pays;
+                    document.getElementById('autrePaysDiv').classList.remove('hidden');
+                }
+
+                // Checkboxes
+                if (data.nature_don === 'Adhésion') {
+                    form.adhesion_annuelle.checked = data.adhesion_annuelle;
+                    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    months.forEach(m => {
+                        const key = `adhesion_${m}`;
+                        if (form[key]) form[key].checked = data[key];
+                    });
+                }
+
+            } catch (e) {
+                console.error('Error loading donation:', e);
+                utils.showNotification('Erreur lors du chargement des données', 'error');
+            } finally {
+                utils.hideLoader();
+            }
+        }
+
+        document.getElementById('donForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!await auth.canWrite()) {
+                utils.showNotification('Action non autorisée', 'error');
+                return;
+            }
+
+            utils.showLoader();
+
+            const formData = new FormData(e.target);
+            const rawData = Object.fromEntries(formData.entries());
+
+            // Map checkboxes to boolean explicitly (FormData doesn't include unchecked, and checked is "on")
+            const checkboxNames = [
+                'adhesion_annuelle', 'adhesion_jan', 'adhesion_feb', 'adhesion_mar', 'adhesion_apr',
+                'adhesion_may', 'adhesion_jun', 'adhesion_jul', 'adhesion_aug', 'adhesion_sep',
+                'adhesion_oct', 'adhesion_nov', 'adhesion_dec'
+            ];
+
+            const data = {
+                nom_donateur: rawData.nom_donateur,
+                montant: parseFloat(rawData.montant),
+                annee_don: parseInt(rawData.annee_don),
+                devise: rawData.devise || 'EUR'
+            };
+
+            // Mapping checkbox boolean
+            checkboxNames.forEach(name => {
+                data[name] = e.target[name] ? e.target[name].checked : false;
+            });
+
+            // Gestion Pays
+            const paysSelect = rawData.pays_select;
+            const paysText = rawData.pays_text;
+            data.pays = (paysSelect === 'Autre') ? paysText : paysSelect;
+
+            // Gestion Nature Don
+            const natSelect = rawData.nature_don_select;
+            const natText = rawData.nature_don_text;
+            data.nature_don = (natSelect === 'Autre') ? natText : natSelect;
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const donationId = urlParams.get('id');
+
+                let response;
+                if (donationId) {
+                    response = await supabase.from('dons').update(data).eq('id', donationId);
+                } else {
+                    response = await supabase.from('dons').insert([data]);
+                }
+
+                if (response.error) {
+                    console.error('Supabase Error:', response.error);
+                    // Show a more descriptive error alert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur de sauvegarde',
+                        text: response.error.message + ' (Code: ' + response.error.code + ')',
+                        footer: 'Avez-vous bien exécuté le script SQL fourni ?'
+                    });
+                    throw response.error;
+                }
+
+                utils.showNotification(i18n.t('donation_success'), 'success');
+                setTimeout(() => window.location.href = 'dons.html', 1000);
+            } catch (e) {
+                console.error('Submit Catch:', e);
+            } finally {
+                utils.hideLoader();
+            }
+        });
+
+        function toggleNatureDon(val) {
+            // Gestion Adhésion
+            const elAdhesion = document.getElementById('adhesionOptions');
+            if (val === 'Adhésion') {
+                elAdhesion.classList.remove('hidden');
+            } else {
+                elAdhesion.classList.add('hidden');
+                elAdhesion.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            }
+
+            // Gestion Autre
+            const elAutre = document.getElementById('autreNatureDiv');
+            if (val === 'Autre') {
+                elAutre.classList.remove('hidden');
+            } else {
+                elAutre.classList.add('hidden');
+            }
+        }
+
+        function toggleAutrePays(val) {
+            const el = document.getElementById('autrePaysDiv');
+            if (val === 'Autre') el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>

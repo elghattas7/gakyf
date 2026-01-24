@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="donations">Gestion des Dons - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Export libraries -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="donations_title">Dons & Donateurs</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="donations_subtitle">Suivez les donations et gérez la base
+                        donateurs</p>
+                </div>
+                <button class="btn btn-primary" onclick="window.location.href='don-form.html'" data-i18n="add_donation">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Enregistrer un Don
+                </button>
+            </div>
+
+            <!-- Graphique et Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Total Card -->
+                <div
+                    class="card p-6 flex items-center justify-between bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-none">
+                    <div>
+                        <p class="text-indigo-100 font-medium mb-1" data-i18n="total_donations_year">Total Dons (Année)
+                        </p>
+                        <h3 id="totalYear" class="text-3xl font-bold">- €</h3>
+                        <p id="vsLastYear" class="text-xs text-indigo-200 mt-2"></p>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Donateurs Actifs -->
+                <div class="card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1" data-i18n="donors_count">Donateurs Actifs</p>
+                        <h3 id="activeDonors" class="text-3xl font-bold text-gray-800">-</h3>
+                        <p id="thisMonthGrowth" class="text-xs text-green-600 mt-2 flex items-center"></p>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-xl">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Dernier Don -->
+                <div class="card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1" data-i18n="last_donation">Dernier Don</p>
+                        <h3 id="lastDonation" class="text-3xl font-bold text-gray-800">- €</h3>
+                        <p id="lastDonationDate" class="text-xs text-gray-400 mt-2">-</p>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-xl">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des Dons -->
+            <div class="card">
+                <div class="p-5 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+                    <h3 class="font-bold text-gray-800" data-i18n="transaction_history">Historique des Transactions</h3>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <select id="filterNature" class="input-modern py-1 px-3 text-sm"
+                            onchange="donsModule.handleFilter()">
+                            <option value="" data-i18n="all_natures">Toutes les natures</option>
+                            <option value="Adhésion" data-i18n="adhesion">Adhésion</option>
+                            <option value="Zakat" data-i18n="zakat">Zakat</option>
+                            <option value="Sadaqa" data-i18n="sadaqa">Sadaqa</option>
+                            <option value="Autre" data-i18n="other">Autre</option>
+                        </select>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Rechercher..."
+                                class="input-modern py-1 px-3 text-sm pl-8" data-i18n="search_donor">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <button onclick="donsModule.exportPDF()"
+                            class="btn btn-secondary py-1 px-3 text-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            PDF
+                        </button>
+                        <button onclick="donsModule.promptAndExportAdhesion()"
+                            class="btn btn-primary py-1 px-3 text-sm flex items-center bg-green-600 hover:bg-green-700 text-white border-none">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            <span data-i18n="export_adherents">Exporter Adhérents</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container border-none shadow-none rounded-t-none">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th data-i18n="donor">Donateur</th>
+                                <th data-i18n="contact">Contact</th>
+                                <th data-i18n="amount">Montant</th>
+                                <th data-i18n="year_column">Année</th>
+                                <th data-i18n="description_column">Description</th>
+                                <th class="no-print" data-i18n="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donsTableBody">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <!-- PDF & Export Dependencies -->
+    <!-- PDF & Export Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/logo-data.js"></script>
+    <script src="js/export-utils.js"></script>
+    <script src="js/layout.js"></script>
+
+    <script src="js/dons.js"></script>
+    <script>
+        /*
+        const donsModule = {
+            allDons: [],
+            async init() {
+                await auth.checkPagePermission(['admin', 'président', 'vice-président', 'secrétaire', 'trésorier', 'conseiller', 'gestionnaire', 'membre']);
+                await layout.initLayout('dons.html');
+                await this.loadDons();
+            },
+
+            async loadDons() {
+                try {
+                    console.log('🔍 loadDons started');
+                    const { data, error } = await supabase.from('dons').select('*').order('created_at', { ascending: false });
+                    if (error) {
+                        console.error('❌ Supabase error:', error);
+                        throw error;
+                    }
+                    console.log('✅ Data fetched:', data?.length);
+
+                    this.allDons = (data || []).map(d => {
+                        // Fallback : si annee_don est absent, on l'extrait de date_don
+                        if (!d.annee_don && d.date_don) {
+                            d.annee_don = new Date(d.date_don).getUTCFullYear();
+                        }
+                        return d;
+                    });
+
+                    console.log('📦 Data mapped, total:', this.allDons.length);
+                    this.renderStats();
+                    this.renderDons(this.allDons);
+                } catch (e) {
+                    console.error('💥 loadDons failed:', e);
+                    utils.showNotification('Erreur de chargement', 'error');
+                }
+            },
+
+            renderStats() {
+                try {
+                    if (!this.allDons || !Array.isArray(this.allDons)) return;
+
+                    const currentYear = new Date().getFullYear();
+
+                    // 1. Total Dons (Année en cours)
+                    const totalYear = this.allDons
+                        .filter(d => (parseInt(d.annee_don) === currentYear))
+                        .reduce((sum, d) => sum + (Number(d.montant) || 0), 0);
+
+                    const totalYearEl = document.getElementById('totalYear');
+                    if (totalYearEl) {
+                        totalYearEl.textContent = utils.formatCurrency(totalYear, 'EUR');
+                    }
+
+                    // 2. Donateurs Actifs (montant > 0)
+                    const activeDonors = new Set(
+                        this.allDons
+                            .filter(d => (Number(d.montant) || 0) > 0)
+                            .map(d => d.nom_donateur)
+                            .filter(name => !!name)
+                    ).size;
+
+                    const activeDonorsEl = document.getElementById('activeDonors');
+                    if (activeDonorsEl) {
+                        activeDonorsEl.textContent = activeDonors;
+                    }
+
+                    // 3. Dernier Don
+                    if (this.allDons.length > 0) {
+                        // The data is already sorted by created_at DESC in the Supabase query
+                        const lastDon = this.allDons[0];
+
+                        const lastDonationEl = document.getElementById('lastDonation');
+                        if (lastDonationEl) {
+                            let dev = lastDon.devise || 'EUR';
+                            if (dev === '€') dev = 'EUR'; // Fix potential '€' in data
+                            lastDonationEl.textContent = utils.formatCurrency(lastDon.montant, dev);
+                        }
+
+                        const lastDonationDateEl = document.getElementById('lastDonationDate');
+                        if (lastDonationDateEl) {
+                            const date = lastDon.date_don || lastDon.created_at;
+                            lastDonationDateEl.textContent = utils.formatDate(date);
+                        }
+                    }
+
+                    // Clean up dummy texts
+                    const vsLastYearEl = document.getElementById('vsLastYear');
+                    if (vsLastYearEl) vsLastYearEl.textContent = '';
+                    const thisMonthGrowthEl = document.getElementById('thisMonthGrowth');
+                    if (thisMonthGrowthEl) thisMonthGrowthEl.textContent = '';
+                } catch (err) {
+                    console.error('❌ Error in renderStats:', err);
+                }
+            },
+
+            renderDons(data) {
+                console.log('🎨 Rendu de', data?.length, 'dons');
+                const tbody = document.getElementById('donsTableBody');
+                if (!tbody) {
+                    console.error('❌ Element donsTableBody introuvable !');
+                    return;
+                }
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8" data-i18n="no_donations_found">${i18n.t('no_donations_found')}</td></tr>`;
+                    return;
+                }
+
+                // Calculer les cumuls par donateur (sur TOUTE la base allDons, pas juste le filtre actuel)
+                const donorTotals = this.allDons.reduce((acc, d) => {
+                    const name = d.nom_donateur || 'Inconnu';
+                    const curr = d.devise || 'DH';
+                    if (!acc[name]) acc[name] = {};
+                    acc[name][curr] = (acc[name][curr] || 0) + (Number(d.montant) || 0);
+                    return acc;
+                }, {});
+
+                // Trier les données par montant cumulé du donateur (décroissant)
+                data.sort((a, b) => {
+                    const nameA = a.nom_donateur || 'Inconnu';
+                    const nameB = b.nom_donateur || 'Inconnu';
+
+                    const getWeight = (name) => {
+                        const t = donorTotals[name] || {};
+                        // Calculer un poids total (simplifié : 1€ = 11 DH pour le tri)
+                        return (t['DH'] || 0) + ((t['EUR'] || 0) * 11) + ((t['€'] || 0) * 11);
+                    };
+
+                    return getWeight(nameB) - getWeight(nameA);
+                });
+
+                tbody.innerHTML = data.map(d => {
+                    try {
+                        const name = d.nom_donateur || 'Inconnu';
+                        const totals = donorTotals[name] || {};
+                        const cumulHtml = Object.keys(totals)
+                            .map(curr => `<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full text-[10px] whitespace-nowrap">${utils.formatCurrency(totals[curr], curr)}</span>`)
+                            .join(' ');
+
+                        return `
+                    <tr>
+                        <td class="font-medium text-gray-900">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">
+                                    ${name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="truncate max-w-[150px]">${name}</span>
+                                    <div class="mt-1 flex gap-1 flex-wrap">${cumulHtml}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-sm">
+                            <div class="text-gray-900">${d.email_donateur || '-'}</div>
+                            <div class="text-gray-500 text-xs">${d.telephone_donateur || ''}</div>
+                        </td>
+                        <td class="font-bold text-gray-900">${utils.formatCurrency(d.montant, d.devise || 'DH')}</td>
+                        <td class="text-gray-500">${d.annee_don || '-'}</td>
+                        <td class="max-w-xs truncate">
+                            <span class="font-medium text-indigo-600">${d.nature_don || '-'}</span>
+                            ${d.description ? `<span class="text-gray-400 text-xs block">${d.description}</span>` : ''}
+                        </td>
+                        <td>
+                            <button onclick="donsModule.editDon('${d.id}')" class="text-gray-400 hover:text-blue-600 mr-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+                            <button onclick="donsModule.deleteDon('${d.id}')" class="text-gray-400 hover:text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </td>
+                    </tr>`;
+                    } catch (err) {
+                        console.error('❌ Error rendering donor row:', d, err);
+                        return `< tr > <td colspan="6">Error rendering row</td></tr > `;
+                    }
+                }).join('');
+            },
+
+            handleFilter() {
+                const nature = document.getElementById('filterNature').value;
+                const search = document.getElementById('searchInput').value.toLowerCase();
+
+                let filtered = this.allDons;
+                if (nature) {
+                    filtered = filtered.filter(d => d.nature_don === nature);
+                }
+                if (search) {
+                    filtered = filtered.filter(d =>
+                        d.nom_donateur.toLowerCase().includes(search) ||
+                        (d.email_donateur && d.email_donateur.toLowerCase().includes(search))
+                    );
+                }
+                this.renderDons(filtered);
+            },
+
+            editDon(id) {
+                window.location.href = `don - form.html ? id = ${id} `;
+            },
+
+            async deleteDon(id) {
+                const result = await Swal.fire({
+                    title: i18n.t('delete_confirmation') || 'Êtes-vous sûr ?',
+                    text: i18n.t('delete_warning') || "Cette action est irréversible !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: i18n.t('delete') || 'Oui, supprimer',
+                    cancelButtonText: i18n.t('cancel') || 'Annuler'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const { error } = await supabase
+                            .from('dons')
+                            .delete()
+                            .eq('id', id);
+
+                        if (error) throw error;
+
+                        Swal.fire(
+                            i18n.t('deleted') || 'Supprimé !',
+                            i18n.t('donation_deleted') || 'Le don a été supprimé.',
+                            'success'
+                        );
+                        this.loadDons();
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        Swal.fire(
+                            i18n.t('error') || 'Erreur',
+                            i18n.t('delete_error') || 'Une erreur est survenue lors de la suppression.',
+                            'error'
+                        );
+                    }
+                }
+            },
+
+            async promptAndExportAdhesion() {
+                // Détecter les années disponibles avec un filtre robuste
+                const yearsWithAdhesions = [...new Set(this.allDons
+                    .filter(d => {
+                        let nature = (d.nature_don || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if (!nature) nature = 'adhesion';
+                        return nature === 'adhesion';
+                    })
+                    .map(d => parseInt(d.annee_don))
+                    .filter(y => y && !isNaN(y))
+                )].sort((a, b) => b - a);
+
+                if (yearsWithAdhesions.length === 0) {
+                    const allYears = [...new Set(this.allDons.map(d => d.annee_don).filter(y => y && !isNaN(y)))].sort((a, b) => b - a);
+                    yearsWithAdhesions.push(...allYears);
+                }
+
+                console.log('Années finales proposées:', yearsWithAdhesions);
+
+                const { value: year } = await Swal.fire({
+                    title: i18n.t('select_year') || 'Sélectionner l\'année',
+                    input: 'select',
+                    inputOptions: yearsWithAdhesions.reduce((acc, y) => ({ ...acc, [y]: y }), {}),
+                    inputValue: yearsWithAdhesions[0] || new Date().getUTCFullYear(),
+                    showCancelButton: true,
+                    confirmButtonText: i18n.t('generate') || 'Générer',
+                    cancelButtonText: i18n.t('cancel') || 'Annuler',
+                    footer: yearsWithAdhesions.length === 0 ? '<span class="text-red-500">Attention: Aucun don de type "Adhésion" détecté.</span>' : ''
+                });
+
+                if (!year) return;
+                const format = await exportUtils.promptExportFormat();
+                if (!format) return;
+
+                if (format === 'pdf') {
+                    this.exportAdhesionMatrix(year);
+                } else if (format === 'excel') {
+                    this.exportAdhesionMatrixExcel(year);
+                } else if (format === 'word') {
+                    this.exportAdhesionMatrixWord(year);
+                }
+            },
+
+            async exportPDF() {
+                const nature = document.getElementById('filterNature').value;
+
+                // Si filtre Adhésion -> Rediriger vers matrice (optionnel, gardons la compatibilité)
+                if (nature === 'Adhésion') {
+                    return this.promptAndExportAdhesion();
+                }
+
+                // Select format for standard export
+                const format = await exportUtils.promptExportFormat();
+                if (!format) return;
+
+                if (format === 'excel') {
+                    return this.exportDonationsExcel();
+                } else if (format === 'word') {
+                    return this.exportDonationsWord();
+                }
+
+                const { doc, isArabic, processText, startY, pdfFont } = exportUtils.initPdf({
+                    orientation: 'l',
+                    title: i18n.t('transaction_history'),
+                    nature: nature || i18n.t('all_natures')
+                });
+
+                let columns = [
+                    { header: i18n.t('donor'), dataKey: 'nom' },
+                    { header: i18n.t('contact'), dataKey: 'contact' },
+                    { header: i18n.t('amount'), dataKey: 'montant' },
+                    { header: i18n.t('date'), dataKey: 'date' },
+                    { header: i18n.t('nature_column'), dataKey: 'nature' }
+                ];
+
+                if (isArabic) columns = columns.reverse();
+
+                const headers = [columns.map(c => processText(c.header))];
+
+                const tableData = this.allDons
+                    .filter(d => !nature || d.nature_don === nature)
+                    .map(d => {
+                        const row = {
+                            nom: d.nom_donateur,
+                            contact: d.telephone_donateur || d.email_donateur || '-',
+                            montant: utils.formatCurrency(d.montant, d.devise),
+                            date: utils.formatDate(d.date_don),
+                            nature: d.nature_don
+                        };
+                        return columns.map(c => processText(row[c.dataKey]));
+                    });
+
+                doc.autoTable({
+                    head: headers,
+                    body: tableData,
+                    startY: startY,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 4,
+                        font: pdfFont,
+                        overflow: 'linebreak',
+                        halign: isArabic ? 'right' : 'left'
+                    },
+                    headStyles: { fillColor: [66, 133, 244] }
+                });
+
+                doc.save('liste_dons.pdf');
+            },
+
+            exportAdhesionMatrix(year) {
+                try {
+                    const { doc, isArabic, processText, startY, pdfFont } = exportUtils.initPdf({
+                        orientation: 'l',
+                        title: i18n.t('montant_adhesion_year'),
+                        year: year
+                    });
+
+                    // Filter
+                    const targetYear = parseInt(year);
+                    console.log('Filtrage pour année:', targetYear, 'Nombre total dons:', this.allDons.length);
+
+                    const filteredDons = this.allDons.filter(d => {
+                        let nature = (d.nature_don || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if (!nature) nature = 'adhesion'; // Fallback
+
+                        const natureMatch = nature === 'adhesion';
+                        const yearMatch = parseInt(d.annee_don) === targetYear;
+
+                        console.log(`Don: ${d.nom_donateur}, Nature: ${nature}, Année: ${d.annee_don}, Match: ${natureMatch && yearMatch} `);
+
+                        return natureMatch && yearMatch;
+                    });
+
+                    if (filteredDons.length === 0) {
+                        const total = this.allDons.length;
+                        utils.showNotification(`${i18n.t('no_donations_found')} (${targetYear}).Analyse sur ${total} dons au total.`, 'warning');
+                        console.log('Dons disponibles pour analyse:', this.allDons);
+                        return;
+                    }
+
+                    // Grouping
+                    const donorsMap = {};
+                    // Helper to get symbol (Always EUR now)
+                    const getSym = () => '€';
+
+                    filteredDons.forEach(d => {
+                        const name = d.nom_donateur || 'Inconnu';
+                        // Initialize with objects {v: value, c: currency}
+                        if (!donorsMap[name]) {
+                            donorsMap[name] = Array(12).fill(null).map(() => ({ v: 0, c: 'DH' }));
+                        }
+
+                        // Logic: Distribute amount based on checkboxes
+                        // 1. Annual check
+                        // 2. Monthly check
+                        // 3. Fallback to date_don
+
+                        let rawAmount = Number(d.montant) || 0;
+                        let rawCurrency = d.devise || 'DH';
+                        let amount = utils.convertAmount(rawAmount, rawCurrency, 'EUR');
+                        let currency = 'EUR';
+                        let targetMonths = [];
+
+                        const isAnnual = d.adhesion_annuelle === true || d.adhesion_annuelle === "true" || d.adhesion_annuelle === "on";
+
+                        if (isAnnual) {
+                            for (let i = 0; i < 12; i++) targetMonths.push(i);
+                        } else {
+                            const monthsMap = [
+                                'adhesion_jan', 'adhesion_feb', 'adhesion_mar', 'adhesion_apr',
+                                'adhesion_may', 'adhesion_jun', 'adhesion_jul', 'adhesion_aug',
+                                'adhesion_sep', 'adhesion_oct', 'adhesion_nov', 'adhesion_dec'
+                            ];
+                            monthsMap.forEach((key, idx) => {
+                                if (d[key] === true || d[key] === "true" || d[key] === "on") {
+                                    targetMonths.push(idx);
+                                }
+                            });
+                        }
+
+                        if (targetMonths.length === 0) {
+                            targetMonths.push(0); // Janvier par défaut
+                        }
+
+                        // Distribute
+                        if (targetMonths.length > 0) {
+                            const share = amount / targetMonths.length;
+                            targetMonths.forEach(idx => {
+                                donorsMap[name][idx].v += share;
+                                donorsMap[name][idx].c = currency; // Update currency
+                            });
+                        }
+                    });
+
+                    // Prepare Matrix
+                    const matrixData = Object.keys(donorsMap).map((name, index) => {
+                        const months = donorsMap[name];
+                        // Sum total value (All in EUR)
+                        const totalVal = months.reduce((a, b) => a + b.v, 0);
+                        const usedCurr = 'EUR';
+
+                        return { index: index + 1, name, months, total: totalVal, currency: usedCurr };
+                    });
+
+                    // ... (headers setup unchanged) ...
+
+                    // Columns Configuration
+                    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    const monthHeaders = monthKeys.map(m => processText(i18n.t('month_' + m) || m));
+
+                    let colDefs = [
+                        { id: 'index', header: '#', width: 10 },
+                        { id: 'name', header: processText(i18n.t('donor_name') || 'Nom'), width: 50 },
+                        ...monthHeaders.map((h, i) => ({ id: `m${i} `, header: h, width: 14 })),
+                        { id: 'total', header: processText(i18n.t('total') || 'Total'), width: 22 } // increased slightly
+                    ];
+
+                    if (isArabic) {
+                        colDefs = colDefs.reverse();
+                    }
+
+                    const head = [colDefs.map(c => c.header)];
+                    const body = matrixData.map(row => {
+                        const rowData = {};
+                        rowData.index = row.index;
+                        rowData.name = processText(row.name);
+
+                        // Total with currency
+                        rowData.total = (row.total % 1 === 0 ? row.total : row.total.toFixed(2)) + ' ' + getSym(row.currency);
+
+                        row.months.forEach((cell, i) => {
+                            // Format: "100 DH" or "50 €"
+                            rowData[`m${i} `] = cell.v > 0 ?
+                                ((cell.v % 1 === 0 ? cell.v : cell.v.toFixed(1)) + ' ' + getSym(cell.c)) : '';
+                        });
+
+                        return colDefs.map(c => rowData[c.id]);
+                    });
+
+                    // Explicit column styles object for autotable
+                    // Since we use array-based body, we map by index
+                    const columnStyles = {};
+                    colDefs.forEach((c, i) => {
+                        columnStyles[i] = { cellWidth: c.width };
+                        // Specific alignments
+                        if (c.id === 'name' && isArabic) columnStyles[i].halign = 'right';
+                        if (c.id === 'name' && !isArabic) columnStyles[i].halign = 'left';
+                    });
+
+                    doc.autoTable({
+                        head: head,
+                        body: body,
+                        startY: startY,
+                        theme: 'grid',
+                        styles: {
+                            fontSize: 8,
+                            cellPadding: 2.5, // Increased padding to prevent truncation
+                            font: pdfFont,
+                            overflow: 'linebreak',
+                            halign: 'center',
+                            valign: 'middle',
+                            lineWidth: 0.1,
+                            lineColor: [0, 0, 0]
+                        },
+                        headStyles: {
+                            fillColor: [156, 204, 101],
+                            textColor: [0, 0, 0],
+                            fontStyle: 'bold',
+                            fontSize: 9,
+                            halign: 'center'
+                        },
+                        columnStyles: columnStyles,
+                        didParseCell: (data) => {
+                            // Colorize total column text
+                            const totalIndex = colDefs.findIndex(c => c.id === 'total');
+                            if (data.column.index === totalIndex && data.section === 'head') {
+                                data.cell.styles.textColor = [200, 0, 0];
+                            }
+                        }
+                    });
+
+                    doc.save(`adhesions_${year}.pdf`);
+                } catch (e) {
+                    console.error('Erreur PDF Matrix:', e);
+                    utils.showNotification('Erreur génération PDF', 'error');
+                }
+            },
+
+            exportAdhesionMatrixExcel(year) {
+                try {
+                    const targetYear = parseInt(year);
+                    const filteredDons = this.allDons.filter(d => {
+                        let nature = (d.nature_don || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if (!nature) nature = 'adhesion'; // Fallback
+                        if (nature !== 'adhesion') return false;
+                        return parseInt(d.annee_don) === targetYear;
+                    });
+
+                    if (filteredDons.length === 0) {
+                        utils.showNotification(i18n.t('no_donations_found') + " (" + targetYear + ")", 'warning');
+                        return;
+                    }
+
+                    // Prepare data (same logic as PDF)
+                    const donorsMap = {};
+                    const getSym = (d) => (d === 'EUR' || d === '€') ? '€' : 'DH';
+
+                    filteredDons.forEach(d => {
+                        const name = d.nom_donateur || 'Inconnu';
+                        if (!donorsMap[name]) {
+                            donorsMap[name] = Array(12).fill(null).map(() => ({ v: 0, c: 'DH' }));
+                        }
+
+                        let amount = Number(d.montant) || 0;
+                        let currency = d.devise || 'DH';
+                        let targetMonths = [];
+
+                        const isAnnual = d.adhesion_annuelle === true || d.adhesion_annuelle === "true" || d.adhesion_annuelle === "on";
+
+                        if (isAnnual) {
+                            for (let i = 0; i < 12; i++) targetMonths.push(i);
+                        } else {
+                            const monthsMap = [
+                                'adhesion_jan', 'adhesion_feb', 'adhesion_mar', 'adhesion_apr',
+                                'adhesion_may', 'adhesion_jun', 'adhesion_jul', 'adhesion_aug',
+                                'adhesion_sep', 'adhesion_oct', 'adhesion_nov', 'adhesion_dec'
+                            ];
+                            monthsMap.forEach((key, idx) => {
+                                if (d[key] === true || d[key] === "true" || d[key] === "on") {
+                                    targetMonths.push(idx);
+                                }
+                            });
+                        }
+
+                        if (targetMonths.length === 0) {
+                            targetMonths.push(0);
+                        }
+
+                        if (targetMonths.length > 0) {
+                            const share = amount / targetMonths.length;
+                            targetMonths.forEach(idx => {
+                                donorsMap[name][idx].v += share;
+                                donorsMap[name][idx].c = currency;
+                            });
+                        }
+                    });
+
+                    // Build Excel data
+                    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    const headers = [
+                        '#',
+                        i18n.t('donor_name') || 'Nom',
+                        ...monthKeys.map(m => i18n.t('month_' + m) || m),
+                        i18n.t('total') || 'Total'
+                    ];
+
+                    const rows = Object.keys(donorsMap).map((name, index) => {
+                        const months = donorsMap[name];
+                        const totalVal = months.reduce((a, b) => a + b.v, 0);
+                        const usedCurr = months.find(m => m.v > 0)?.c || 'DH';
+
+                        return [
+                            index + 1,
+                            name,
+                            ...months.map(cell => cell.v > 0 ? `${cell.v.toFixed(1)} ${getSym(cell.c)} ` : ''),
+                            `${totalVal.toFixed(2)} ${getSym(usedCurr)} `
+                        ];
+                    });
+
+                    const data = [headers, ...rows];
+                    exportUtils.exportToExcel(data, `adhesions_${year} `, `Adhésions ${year} `);
+                } catch (e) {
+                    console.error('Excel export error:', e);
+                    utils.showNotification('Erreur export Excel', 'error');
+                }
+            },
+
+            async exportAdhesionMatrixWord(year) {
+                try {
+                    const targetYear = parseInt(year);
+                    const filteredDons = this.allDons.filter(d => {
+                        let nature = (d.nature_don || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if (!nature) nature = 'adhesion'; // Fallback
+                        if (nature !== 'adhesion') return false;
+                        return parseInt(d.annee_don) === targetYear;
+                    });
+
+                    if (filteredDons.length === 0) {
+                        utils.showNotification(i18n.t('no_donations_found') + " (" + targetYear + ")", 'warning');
+                        return;
+                    }
+
+                    // Prepare data (same logic as PDF/Excel)
+                    const donorsMap = {};
+                    const getSym = (d) => (d === 'EUR' || d === '€') ? '€' : 'DH';
+
+                    filteredDons.forEach(d => {
+                        const name = d.nom_donateur || 'Inconnu';
+                        if (!donorsMap[name]) {
+                            donorsMap[name] = Array(12).fill(null).map(() => ({ v: 0, c: 'DH' }));
+                        }
+
+                        let amount = Number(d.montant) || 0;
+                        let currency = d.devise || 'DH';
+                        let targetMonths = [];
+
+                        const isAnnual = d.adhesion_annuelle === true || d.adhesion_annuelle === "true" || d.adhesion_annuelle === "on";
+
+                        if (isAnnual) {
+                            for (let i = 0; i < 12; i++) targetMonths.push(i);
+                        } else {
+                            const monthsMap = [
+                                'adhesion_jan', 'adhesion_feb', 'adhesion_mar', 'adhesion_apr',
+                                'adhesion_may', 'adhesion_jun', 'adhesion_jul', 'adhesion_aug',
+                                'adhesion_sep', 'adhesion_oct', 'adhesion_nov', 'adhesion_dec'
+                            ];
+                            monthsMap.forEach((key, idx) => {
+                                if (d[key] === true || d[key] === "true" || d[key] === "on") {
+                                    targetMonths.push(idx);
+                                }
+                            });
+                        }
+
+                        if (targetMonths.length === 0) {
+                            targetMonths.push(0);
+                        }
+
+                        if (targetMonths.length > 0) {
+                            const share = amount / targetMonths.length;
+                            targetMonths.forEach(idx => {
+                                donorsMap[name][idx].v += share;
+                                donorsMap[name][idx].c = currency;
+                            });
+                        }
+                    });
+
+                    // Build Word data
+                    const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+                    const headers = [
+                        '#',
+                        i18n.t('donor_name') || 'Nom',
+                        ...monthKeys.map(m => i18n.t('month_' + m) || m),
+                        i18n.t('total') || 'Total'
+                    ];
+
+                    const rows = Object.keys(donorsMap).map((name, index) => {
+                        const months = donorsMap[name];
+                        const totalVal = months.reduce((a, b) => a + b.v, 0);
+                        const usedCurr = months.find(m => m.v > 0)?.c || 'DH';
+
+                        return [
+                            String(index + 1),
+                            name,
+                            ...months.map(cell => cell.v > 0 ? `${cell.v.toFixed(1)} ${getSym(cell.c)} ` : ''),
+                            `${totalVal.toFixed(2)} ${getSym(usedCurr)} `
+                        ];
+                    });
+
+                    const data = [headers, ...rows];
+                    const title = `${i18n.t('montant_adhesion_year') || 'Adhésions'} ${year} `;
+                    await exportUtils.exportToWord(data, `adhesions_${year}`, title);
+                } catch (e) {
+                    console.error('Word export error:', e);
+                    utils.showNotification('Erreur export Word', 'error');
+                }
+            },
+
+            getFilteredData() {
+                const nature = document.getElementById('filterNature').value;
+                const search = document.getElementById('searchInput').value.toLowerCase();
+
+                let filtered = this.allDons;
+                if (nature) {
+                    filtered = filtered.filter(d => d.nature_don === nature);
+                }
+                if (search) {
+                    filtered = filtered.filter(d =>
+                        d.nom_donateur.toLowerCase().includes(search) ||
+                        (d.email_donateur && d.email_donateur.toLowerCase().includes(search))
+                    );
+                }
+                return filtered;
+            },
+
+            exportDonationsExcel() {
+                try {
+                    const data = this.getFilteredData();
+                    const headers = [
+                        '#',
+                        i18n.t('donor') || 'Donateur',
+                        i18n.t('contact') || 'Contact',
+                        i18n.t('amount') || 'Montant',
+                        i18n.t('date') || 'Date',
+                        i18n.t('nature_column') || 'Nature'
+                    ];
+
+                    const rows = data.map((d, index) => [
+                        index + 1,
+                        d.nom_donateur,
+                        d.telephone_donateur || d.email_donateur || '-',
+                        `${d.montant} ${d.devise || 'DH'}`,
+                        utils.formatDate(d.date_don),
+                        d.nature_don
+                    ]);
+
+                    const excelData = [headers, ...rows];
+                    exportUtils.exportToExcel(excelData, 'liste_dons', 'Dons');
+                } catch (e) {
+                    console.error('Excel export error:', e);
+                    utils.showNotification('Erreur export Excel', 'error');
+                }
+            },
+
+            async exportDonationsWord() {
+                try {
+                    const data = this.getFilteredData();
+                    const headers = [
+                        '#',
+                        i18n.t('donor') || 'Donateur',
+                        i18n.t('contact') || 'Contact',
+                        i18n.t('amount') || 'Montant',
+                        i18n.t('date') || 'Date',
+                        i18n.t('nature_column') || 'Nature'
+                    ];
+
+                    const rows = data.map((d, index) => [
+                        String(index + 1),
+                        d.nom_donateur,
+                        d.telephone_donateur || d.email_donateur || '-',
+                        `${d.montant} ${d.devise || 'DH'}`,
+                        utils.formatDate(d.date_don),
+                        d.nature_don
+                    ]);
+
+                    const wordData = [headers, ...rows];
+                    const title = i18n.t('transaction_history') || 'Historique des Transactions';
+                    await exportUtils.exportToWord(wordData, 'liste_dons', title);
+                } catch (e) {
+                    console.error('Word export error:', e);
+                    utils.showNotification('Erreur export Word', 'error');
+                }
+            }
+        };
+
+        */
+        donsModule.init();
+    </script>
+</body>
+
+</html>
