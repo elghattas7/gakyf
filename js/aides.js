@@ -162,7 +162,7 @@ const aidesModule = {
                 const lastAid = sorted[0];
 
                 const lastAidAmountEl = document.getElementById('lastAidAmount');
-                if (lastAidAmountEl) lastAidAmountEl.textContent = utils.formatCurrency(lastAid.montant);
+                if (lastAidAmountEl) lastAidAmountEl.textContent = utils.formatCurrency(lastAid.montant, 'EUR');
 
                 const lastAidDateEl = document.getElementById('lastAidDate');
                 if (lastAidDateEl) {
