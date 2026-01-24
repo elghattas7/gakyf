@@ -446,8 +446,59 @@ const aidesModule = {
         } finally {
             utils.hideLoader();
         }
+    },
+
+    async toggleBeneficiaryType(type) {
+        const label = document.getElementById('beneficiaryLabel');
+        const labelKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
+        if (label) {
+            label.textContent = i18n.t(labelKey);
+            label.setAttribute('data-i18n', labelKey);
+        }
+        await this.loadBeneficiaries(type, 'beneficiarySelect');
+    },
+
+    toggleAutreAide(val) {
+        const el = document.getElementById('autreAideDiv');
+        if (!el) return;
+        if (val === 'Autre') el.classList.remove('hidden');
+        else el.classList.add('hidden');
+    },
+
+    async initForm() {
+        await auth.protectPage();
+        if (!await auth.canWrite()) {
+            utils.showNotification('Accès refusé', 'error');
+            setTimeout(() => window.location.href = 'aides.html', 1500);
+            return;
+        }
+        await layout.initLayout('aides.html');
+
+        // Date par défaut aujourd'hui
+        const dateInput = document.querySelector('[name="date_attribution"]');
+        if (dateInput) dateInput.valueAsDate = new Date();
+
+        // Load default beneficiaries (veuve is checked by default)
+        await this.loadBeneficiaries('veuve', 'beneficiarySelect');
+
+        // Form submit listener
+        const form = document.getElementById('aideForm');
+        if (form) {
+            form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        }
     }
 };
 
 window.aidesModule = aidesModule;
 window.addNewProgram = () => aidesModule.addNewProgram();
+window.toggleBeneficiaryType = (t) => aidesModule.toggleBeneficiaryType(t);
+window.toggleAutreAide = (v) => aidesModule.toggleAutreAide(v);
+
+// Auto-init based on page content
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('attributionsTableBody')) {
+        aidesModule.init();
+    } else if (document.getElementById('aideForm')) {
+        aidesModule.initForm();
+    }
+});
