@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="aids">Gestion des Aides - Gestion Association</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+    <div id="sidebarContainer"></div>
+
+    <div class="main-content">
+        <div id="header"></div>
+
+        <main class="p-8 fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="page-title" data-i18n="aids">Programmes & Aides</h2>
+                    <p class="text-gray-500 mt-1" data-i18n="aids_management_subtitle">Gérez les programmes d'assistance
+                        et les attributions</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-secondary" onclick="aidesModule.exportList()" data-i18n="download_list">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
+                            </path>
+                        </svg>
+                        <span data-i18n="download_list">Télécharger la liste</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="addNewProgram()" data-i18n="new_program">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span data-i18n="new_program">Nouveau Programme</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='aide-form.html'">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span data-i18n="assign_aid_btn">Attribuer une Aide</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Résumées -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card p-5 border-l-4 border-blue-500">
+                    <p class="text-sm text-gray-500 font-medium uppercase" data-i18n="assigned_total_year">Total
+                        Attribué (Année)</p>
+                    <h3 id="totalYearAides" class="text-2xl font-bold text-gray-800 mt-1">- €</h3>
+                </div>
+                <div class="card p-5 border-l-4 border-green-500">
+                    <p class="text-sm text-gray-500 font-medium uppercase" data-i18n="active_beneficiaries">
+                        Bénéficiaires Actifs</p>
+                    <h3 id="activeBeneficiaries" class="text-2xl font-bold text-gray-800 mt-1">-</h3>
+                </div>
+                <div class="card p-5 border-l-4 border-purple-500">
+                    <p class="text-sm text-gray-500 font-medium uppercase" data-i18n="last_aid">Dernière Aide</p>
+                    <h3 id="lastAidAmount" class="text-2xl font-bold text-gray-800 mt-1">- €</h3>
+                    <p id="lastAidDate" class="text-xs text-gray-400 mt-1">-</p>
+                </div>
+            </div>
+
+            <!-- Programmes Actifs -->
+            <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="available_programs">Programmes d'Aide
+                Disponibles</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10" id="programmesContainer">
+                <!-- Rempli par JS -->
+                <div class="col-span-4 text-center py-8" data-i18n="loading_dots">Chargement...</div>
+            </div>
+
+            <!-- Historique Attributions -->
+            <div class="card">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-800">Historique des Attributions</h3>
+                    <div class="flex gap-2">
+                        <input type="date" class="input-modern py-1 px-3 text-sm w-auto">
+                    </div>
+                </div>
+
+                <div class="table-container border-none shadow-none rounded-t-none">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th data-i18n="prog_nature">Nature / Programme</th>
+                                <th data-i18n="beneficiary">Bénéficiaire</th>
+                                <th data-i18n="type_column">Type</th>
+                                <th data-i18n="amount">Montant</th>
+                                <th data-i18n="date">Date</th>
+                                <th data-i18n="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attributionsTableBody">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- <script src="js/pdf-fonts.js"></script> -->
+    <script src="js/export-utils.js"></script>
+
+    <script src="js/aides.js"></script>
+</body>
+
+</html>
