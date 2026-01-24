@@ -172,24 +172,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
-    <script>
-        // DIAGNOSTIC: Check if auth.js was loaded
-        if (typeof auth === 'undefined') {
-            alert('DEBUG: auth object missing after script tag. Checking file reachability...');
-            fetch('js/auth.js')
-                .then(response => {
-                    alert('DEBUG: Fetch js/auth.js status: ' + response.status);
-                    if (response.ok) {
-                        return response.text().then(text => {
-                            alert('DEBUG: File content start: ' + text.substring(0, 50));
-                        });
-                    }
-                })
-                .catch(err => alert('DEBUG: Fetch failed completely: ' + err.message));
-        } else {
-            alert('DEBUG: auth object exists! (Logic error in previous alerts?) check: ' + Object.keys(auth));
-        }
-    </script>
     <script src="js/utils.js"></script>
 
     <!-- i18n Scripts -->
@@ -239,67 +221,46 @@
         // Handle Login Submission
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('DEBUG: 2. Form submit detected. Starting login process...');
+
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            loginBtn.disabled = true;
+            const originalContent = loginBtn.innerHTML;
+            loginBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                ${i18n.t('loading')}...
+            `;
+            errorMessage.classList.add('hidden');
 
             try {
-                // BYPASS: Don't crash if i18n is missing
-                const loadingText = (typeof i18n !== 'undefined' && i18n.t) ? i18n.t('loading') : 'Chargement';
-
-                const login = document.getElementById('login').value;
-                const password = document.getElementById('password').value;
-                const loginBtn = document.getElementById('loginBtn');
-                const errorMessage = document.getElementById('errorMessage');
-                const errorText = document.getElementById('errorText');
-
-                if (!loginBtn) throw new Error('DOM Element #loginBtn missing');
-
-                loginBtn.disabled = true;
-                const originalContent = loginBtn.innerHTML;
-
-                loginBtn.innerHTML = `
-                    <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    ${loadingText}...
-                `;
-
-                if (errorMessage) errorMessage.classList.add('hidden');
-
-                alert('DEBUG: 3. About to call auth.login()...');
-
-                // Ensure auth exists
-                if (typeof auth === 'undefined') {
-                    throw new Error('Auth object is undefined! auth.js failed to load.');
-                }
-
                 const result = await auth.login(login, password);
-                alert('DEBUG: 6. auth.login() returned. Success: ' + result.success);
 
                 if (result.success) {
                     if (typeof showNotification === 'function') {
                         showNotification('Connexion réussie !', 'success');
-                    } else {
-                        alert('Connexion réussie!');
                     }
                     setTimeout(() => {
                         auth.redirectByRole();
                     }, 500);
                 } else {
-                    if (errorText) errorText.textContent = result.error || 'Erreur de connexion';
-                    if (errorMessage) errorMessage.classList.remove('hidden');
+                    errorText.textContent = result.error || 'Erreur de connexion';
+                    errorMessage.classList.remove('hidden');
                     loginBtn.disabled = false;
                     loginBtn.innerHTML = originalContent;
                 }
             } catch (error) {
                 console.error('Erreur:', error);
-                alert('DEBUG: CRITICAL EXCEPTION in submit handler: ' + error.message);
-
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) {
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = 'Retry Login';
-                }
+                errorText.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+                errorMessage.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalContent;
             }
         });
     </script>
