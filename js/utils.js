@@ -305,6 +305,26 @@ class Pagination {
 }
 
 /**
+ * Demander confirmation (Promise)
+ */
+async function confirmAction(message) {
+    if (typeof Swal !== 'undefined') {
+        const result = await Swal.fire({
+            title: (window.i18n && window.i18n.t('delete_confirmation')) || 'Êtes-vous sûr ?',
+            text: message || (window.i18n && window.i18n.t('delete_warning')) || "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: (window.i18n && window.i18n.t('yes')) || 'Oui',
+            cancelButtonText: (window.i18n && window.i18n.t('cancel')) || 'Annuler'
+        });
+        return result.isConfirmed;
+    }
+    return confirm(message || 'Êtes-vous sûr ?');
+}
+
+/**
  * Exporter des données en CSV
  */
 function exportToCSV(data, filename) {
@@ -346,6 +366,7 @@ window.utils = {
     validateEmail,
     validatePhone,
     showConfirmModal,
+    confirmAction, // Added
     showLoader,
     hideLoader,
     debounce,
