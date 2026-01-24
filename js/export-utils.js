@@ -174,6 +174,30 @@ const exportUtils = {
         }
 
         try {
+            // Add logo if available
+            let pdfContent = content;
+            if (window.logoBase64) {
+                // Ensure content is a string
+                if (typeof content === 'string') {
+                    pdfContent = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <img src="${window.logoBase64}" style="width: 100px; height: auto;">
+                        </div>
+                        ${content}
+                    `;
+                } else {
+                    // If element, we prepend a div
+                    const container = document.createElement('div');
+                    container.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <img src="${window.logoBase64}" style="width: 100px; height: auto;">
+                        </div>
+                    `;
+                    container.appendChild(content.cloneNode(true));
+                    pdfContent = container;
+                }
+            }
+
             const opt = {
                 margin: 10,
                 filename: `${filename}.pdf`,
@@ -182,7 +206,7 @@ const exportUtils = {
                 jsPDF: { unit: 'mm', format: 'a4', orientation: options.orientation || 'portrait' }
             };
 
-            await html2pdf().set(opt).from(content).save();
+            await html2pdf().set(opt).from(pdfContent).save();
             return true;
         } catch (e) {
             console.error('PDF Export error:', e);
