@@ -90,7 +90,7 @@ const aidesModule = {
         if (!tbody) return;
 
         if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">${i18n.t('no_attributions_found') || 'Aucune attribution trouvée'}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500" data-i18n="no_recent_activity">${i18n.t('no_recent_activity') || 'Aucune activité récente'}</td></tr>`;
             return;
         }
 
@@ -384,22 +384,40 @@ const aidesModule = {
         const select = document.getElementById(selectId);
         if (!select) return;
 
-        select.innerHTML = `<option data-i18n="loading">${i18n.t('loading') || 'Chargement...'}</option>`;
+        const loadingText = (window.i18n && window.i18n.t('loading')) || 'Chargement...';
+        select.innerHTML = `<option value="">${loadingText}</option>`;
 
         try {
-            const { data } = await supabase.from(table).select('id, nom_complet').order('nom_complet');
-            const placeholderKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
-            select.innerHTML = `<option value="" data-i18n="${placeholderKey}">${i18n.t(placeholderKey) || 'Sélectionner...'}</option>`;
-            if (data) {
-                data.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b.id;
-                    opt.textContent = b.nom_complet;
-                    select.appendChild(opt);
-                });
+            const { data, error } = await supabase.from(table).select('id, nom_complet').order('nom_complet');
+
+            if (error) {
+                console.error('Data load error:', error);
+                utils.showNotification('Erreur chargement: ' + error.message, 'error');
+                select.innerHTML = '<option value="">Erreur</option>';
+                return;
             }
+
+            const placeholderKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
+            const placeholder = (window.i18n && window.i18n.t(placeholderKey)) || 'Sélectionner...';
+
+            if (!data || data.length === 0) {
+                // Determine user-friendly table name
+                const tableName = type === 'veuve' ? 'Veuves' : 'Orphelins';
+                utils.showNotification(`Aucun enregistrement trouvé dans "${tableName}"`, 'warning');
+                select.innerHTML = `<option value="">(Aucun résultat)</option>`;
+                return;
+            }
+
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            data.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.nom_complet;
+                select.appendChild(opt);
+            });
         } catch (e) {
-            console.error(e);
+            console.error('Critical error:', e);
+            utils.showNotification('Erreur critique: ' + e.message, 'error');
         }
     },
 
@@ -446,8 +464,59 @@ const aidesModule = {
         } finally {
             utils.hideLoader();
         }
+    },
+
+    async toggleBeneficiaryType(type) {
+        const label = document.getElementById('beneficiaryLabel');
+        const labelKey = type === 'veuve' ? 'select_widow' : 'select_orphan';
+        if (label) {
+            label.textContent = i18n.t(labelKey);
+            label.setAttribute('data-i18n', labelKey);
+        }
+        await this.loadBeneficiaries(type, 'beneficiarySelect');
+    },
+
+    toggleAutreAide(val) {
+        const el = document.getElementById('autreAideDiv');
+        if (!el) return;
+        if (val === 'Autre') el.classList.remove('hidden');
+        else el.classList.add('hidden');
+    },
+
+    async initForm() {
+        await auth.protectPage();
+        if (!await auth.canWrite()) {
+            utils.showNotification('Accès refusé', 'error');
+            setTimeout(() => window.location.href = 'aides.html', 1500);
+            return;
+        }
+        await layout.initLayout('aides.html');
+
+        // Date par défaut aujourd'hui
+        const dateInput = document.querySelector('[name="date_attribution"]');
+        if (dateInput) dateInput.valueAsDate = new Date();
+
+        // Load default beneficiaries (veuve is checked by default)
+        await this.loadBeneficiaries('veuve', 'beneficiarySelect');
+
+        // Form submit listener
+        const form = document.getElementById('aideForm');
+        if (form) {
+            form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        }
     }
 };
 
 window.aidesModule = aidesModule;
 window.addNewProgram = () => aidesModule.addNewProgram();
+window.toggleBeneficiaryType = (t) => aidesModule.toggleBeneficiaryType(t);
+window.toggleAutreAide = (v) => aidesModule.toggleAutreAide(v);
+
+// Auto-init based on page content
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('attributionsTableBody')) {
+        aidesModule.init();
+    } else if (document.getElementById('aideForm')) {
+        aidesModule.initForm();
+    }
+});
