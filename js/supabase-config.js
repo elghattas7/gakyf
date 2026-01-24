@@ -46,13 +46,7 @@ window.supabaseClient = {
 
         if (error) {
             console.error('Error fetching profile:', error);
-            // DEBUG: Show detailed error to user
-            alert('Debug Error: Failed to fetch profile. ' + error.message + ' (' + error.code + ')');
             return null;
-        }
-
-        if (!data) {
-            alert('Debug Error: Profile fetch returned no data (and no specific error error).');
         }
 
         return data;
@@ -87,4 +81,3 @@ window.supabaseClient = {
 };
 
 console.log('✅ Supabase configuré et prêt');
-alert('DEBUG: js/supabase-config.js LOADED. Supabase URL: ' + SUPABASE_URL);

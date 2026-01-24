@@ -2,8 +2,6 @@
 // GESTION DE l'AUTHENTIFICATION
 // =====================================================
 
-alert('DEBUG: js/auth.js Starting Execution...');
-
 // Domaine fictif pour les logins sans format email (requis par Supabase)
 
 // Domaine fictif pour les logins sans format email (requis par Supabase)
@@ -23,14 +21,10 @@ function formatLogin(identifier) {
 async function login(identifier, password) {
     const email = formatLogin(identifier);
 
-    alert('DEBUG: calling supabase.auth.signInWithPassword for ' + email);
-
     const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
     });
-
-    alert('DEBUG: supabase.auth.signInWithPassword returned. Error: ' + (error ? error.message : 'none'));
 
     if (error) {
         console.error('Erreur de connexion:', error);
@@ -123,7 +117,6 @@ async function redirectByRole() {
     const profile = await window.supabaseClient.getCurrentUserProfile();
 
     if (!profile) {
-        alert('Debug Error: redirectByRole failed because profile is null. See console for previous errors.');
         window.location.href = 'index.html';
         return;
     }
@@ -163,21 +156,13 @@ async function getCurrentUserInfo() {
 }
 
 // Écouter les changements d'état d'authentification
-if (typeof supabase !== 'undefined' && supabase.auth) {
-    try {
-        supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth state changed:', event, session);
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event, session);
 
-            if (event === 'SIGNED_OUT') {
-                window.location.href = 'index.html';
-            }
-        });
-    } catch (e) {
-        console.error('Error attaching auth listener:', e);
+    if (event === 'SIGNED_OUT') {
+        window.location.href = 'index.html';
     }
-} else {
-    console.warn('Supabase not available for auth listener');
-}
+});
 
 // Export des fonctions
 window.auth = {
