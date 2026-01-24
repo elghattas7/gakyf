@@ -344,10 +344,9 @@ const donsModule = {
             const monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
             const monthHeaders = monthKeys.map(m => i18n.t('month_' + m) || m);
 
-            const letterSpacing = isArabic ? 'letter-spacing: 0.5px;' : '';
 
             let htmlTable = `
-                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; ${letterSpacing}">
+                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px;">
                     <style>
                         table { border-collapse: collapse; width: 100%; }
                         th, td { padding: 4px; border: 1px solid #86efac; text-align: center; }
@@ -419,10 +418,9 @@ const donsModule = {
             const isArabic = i18n.currentLang === 'ar';
             const align = isArabic ? 'right' : 'left';
 
-            const letterSpacing = isArabic ? 'letter-spacing: 0.5px;' : '';
 
             let htmlTable = `
-                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px; ${letterSpacing}">
+                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px;">
                     <style>
                         table { border-collapse: collapse; width: 100%; }
                         th, td { padding: 8px; border: 1px solid #c7d2fe; }

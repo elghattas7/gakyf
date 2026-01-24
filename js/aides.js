@@ -326,10 +326,9 @@ const aidesModule = {
             const title = i18n.t('history_attributions') || 'Historique des Attributions';
             const dateStr = new Date().toLocaleDateString();
 
-            const letterSpacing = isArabic ? 'letter-spacing: 0.5px;' : '';
 
             let htmlTable = `
-                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px; ${letterSpacing}">
+                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px;">
                     <style>
                         table { border-collapse: collapse; width: 100%; }
                         th, td { padding: 8px; border: 1px solid #c7d2fe; text-align: ${align}; }
