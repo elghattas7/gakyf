@@ -192,8 +192,7 @@ const donsModule = {
                         </div>
                     </td>
                     <td class="text-sm">
-                        <div class="text-gray-900">${d.email_donateur || '-'}</div>
-                        <div class="text-gray-500 text-xs">${d.telephone_donateur || ''}</div>
+                        <div class="text-gray-900">${d.pays || '-'}</div>
                     </td>
                     <td class="font-bold text-gray-900">${utils.formatCurrency(utils.convertAmount(d.montant, d.devise || 'DH', 'EUR'), 'EUR')}</td>
                     <td class="text-gray-500">${d.annee_don || '-'}</td>
@@ -433,7 +432,7 @@ const donsModule = {
                         <thead>
                             <tr style="background-color: #e0e7ff;">
                                 <th style="text-align: ${align};">${i18n.t('donor')}</th>
-                                <th style="text-align: ${align};">${i18n.t('contact')}</th>
+                                <th style="text-align: ${align};">${i18n.t('pays')}</th>
                                 <th style="text-align: right;">${i18n.t('amount')}</th>
                                 <th style="text-align: center;">${i18n.t('date')}</th>
                                 <th style="text-align: center;">${i18n.t('nature_column')}</th>
@@ -450,7 +449,7 @@ const donsModule = {
                     htmlTable += `
                         <tr style="background-color: ${bg};">
                             <td>${d.nom_donateur || ''}</td>
-                            <td>${d.telephone_donateur || d.email_donateur || '-'}</td>
+                            <td>${d.pays || '-'}</td>
                             <td style="text-align: right; font-weight: bold;">${utils.formatCurrency(montantEUR, 'EUR')}</td>
                             <td style="text-align: center;">${utils.formatDate(d.date_don)}</td>
                             <td style="text-align: center;">${d.nature_don || '-'}</td>
