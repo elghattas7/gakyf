@@ -253,7 +253,7 @@
             try {
                 const { data, error } = await supabase
                     .from('aides')
-                    .select('*, programmes_aide(nom_programme, type_aide)')
+                    .select('*')
                     .eq('id_veuve', veuveId)
                     .order('date_aide', { ascending: false });
 
@@ -266,9 +266,10 @@
 
                 let html = '<div class="space-y-3">';
                 data.forEach(aide => {
+                    const nature = aide.nature_aide || i18n.t('program');
                     html += `
                         <div class="p-3 bg-gray-50 rounded-lg">
-                            <div class="font-medium text-gray-800">${i18n.t(aide.programmes_aide?.nom_programme?.toLowerCase()) || aide.programmes_aide?.nom_programme || i18n.t('program')}</div>
+                            <div class="font-medium text-gray-800">${nature}</div>
                             <div class="text-sm text-gray-600">${utils.formatCurrency(aide.montant, 'EUR')}</div>
                             <div class="text-xs text-gray-500">${utils.formatDate(aide.date_aide)}</div>
                         </div>
@@ -279,11 +280,7 @@
                 container.innerHTML = html;
             } catch (error) {
                 console.error('Erreur loadAides:', error);
-                if (error.code === 'PGRST205' || error.code === '404') {
-                    if (container) container.innerHTML = `<p class="text-gray-400 text-sm">Module d'aides non configuré.</p>`;
-                } else {
-                    if (container) container.innerHTML = `<p class="text-red-500 text-sm" data-i18n="loading_error">${i18n.t('loading_error')}</p>`;
-                }
+                if (container) container.innerHTML = `<p class="text-red-500 text-sm" data-i18n="loading_error">${i18n.t('loading_error')}</p>`;
             }
         }
 
