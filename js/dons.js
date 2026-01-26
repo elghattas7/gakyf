@@ -352,16 +352,16 @@ const donsModule = {
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
                         .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                        .month-col { width: auto; }
+                        .month-col { width: auto; font-size: 10px; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px;">${title}</h2>
-                    <table style="width: 100%; font-size: 8px;">
+                    <table style="width: 100%; font-size: 10px;">
                     <thead>
                         <tr style="background-color: #dcfce7;">
                             <th style="width: 3%;">#</th>
                             <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000;">${i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th class="month-col">${m}</th>`).join('')}
-                            <th style="width: 8%; color: red;">${i18n.t('total')}</th>
+                            <th style="width: 8%; color: red; font-size: 10px;">${i18n.t('total')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -379,7 +379,7 @@ const donsModule = {
                     const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' ' + (m.c === 'EUR' || m.c === '€' ? '€' : 'DH')) : '';
                     return `<td class="month-col">${val}</td>`;
                 }).join('')}
-                        <td style="font-weight: bold; color: red;">${totalDisplay}</td>
+                        <td style="font-weight: bold; color: red; font-size: 10px;">${totalDisplay}</td>
                     </tr>
                     `;
             });
