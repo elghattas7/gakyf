@@ -347,16 +347,17 @@ const donsModule = {
             let htmlTable = `
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; font-weight: bold;">
                     <style>
-                        table { border-collapse: collapse; width: 100%; }
+                        table { border-collapse: collapse; width: 100%; page-break-inside: auto; }
                         th, td { padding: 4px; border: 1px solid #000; text-align: center; }
-                        tr { page-break-inside: avoid; break-inside: avoid; }
+                        tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+                        tbody { page-break-inside: auto; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px;">${title}</h2>
                     <table style="width: 100%; font-size: 8px;">
                     <thead>
                         <tr style="background-color: #dcfce7;">
                             <th>#</th>
-                            <th style="text-align: left; font-size: 10px;">${i18n.t('donor_name')}</th>
+                            <th style="text-align: left; font-size: 12px; color: #8B0000;">${i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th>${m}</th>`).join('')}
                             <th style="color: red;">${i18n.t('total')}</th>
                         </tr>
@@ -371,7 +372,7 @@ const donsModule = {
                 htmlTable += `
                     <tr style="background-color: ${bg};">
                         <td>${row.index}</td>
-                        <td style="text-align: ${isArabic ? 'right' : 'left'}; font-size: 10px;">${row.name}</td>
+                        <td style="text-align: ${isArabic ? 'right' : 'left'}; font-size: 12px; color: #8B0000;">${row.name}</td>
                         ${row.months.map(m => {
                     const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' ' + (m.c === 'EUR' || m.c === '€' ? '€' : 'DH')) : '';
                     return `<td>${val}</td>`;
