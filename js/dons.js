@@ -369,14 +369,14 @@ const donsModule = {
 
             matrixData.forEach((row, i) => {
                 const bg = i % 2 === 0 ? '#fff' : '#f0fdf4';
-                const totalDisplay = (row.total % 1 === 0 ? row.total : row.total.toFixed(2)) + ' ' + (row.currency === 'EUR' || row.currency === '€' ? '€' : 'DH');
+                const totalDisplay = (row.total % 1 === 0 ? row.total : row.total.toFixed(2)) + ' €';
 
                 htmlTable += `
                     <tr style="background-color: ${bg};">
                         <td>${row.index}</td>
                         <td class="donor-col" style="text-align: ${isArabic ? 'right' : 'left'}; font-size: 12px; color: #8B0000;">${row.name}</td>
                         ${row.months.map(m => {
-                    const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' ' + (m.c === 'EUR' || m.c === '€' ? '€' : 'DH')) : '';
+                    const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' €') : '';
                     return `<td class="month-col">${val}</td>`;
                 }).join('')}
                         <td style="font-weight: bold; color: red; font-size: 10px;">${totalDisplay}</td>
