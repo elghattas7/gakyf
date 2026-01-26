@@ -345,19 +345,19 @@ const donsModule = {
 
 
             let htmlTable = `
-                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px;">
+                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; font-weight: bold;">
                     <style>
                         table { border-collapse: collapse; width: 100%; }
-                        th, td { padding: 4px; border: 1px solid #86efac; text-align: center; }
+                        th, td { padding: 4px; border: 1px solid #000; text-align: center; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px;">${title}</h2>
                     <table style="width: 100%; font-size: 8px;">
                     <thead>
                         <tr style="background-color: #dcfce7;">
                             <th>#</th>
-                            <th style="text-align: left;">${i18n.t('donor_name')}</th>
+                            <th style="text-align: left; font-size: 10px;">${i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th>${m}</th>`).join('')}
-                            <th style="color: #b91c1c;">${i18n.t('total')}</th>
+                            <th style="color: red;">${i18n.t('total')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -370,12 +370,12 @@ const donsModule = {
                 htmlTable += `
                     <tr style="background-color: ${bg};">
                         <td>${row.index}</td>
-                        <td style="text-align: ${isArabic ? 'right' : 'left'};">${row.name}</td>
+                        <td style="text-align: ${isArabic ? 'right' : 'left'}; font-size: 10px;">${row.name}</td>
                         ${row.months.map(m => {
                     const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' ' + (m.c === 'EUR' || m.c === '€' ? '€' : 'DH')) : '';
                     return `<td>${val}</td>`;
                 }).join('')}
-                        <td style="font-weight: bold; color: #b91c1c;">${totalDisplay}</td>
+                        <td style="font-weight: bold; color: red;">${totalDisplay}</td>
                     </tr>
                     `;
             });
