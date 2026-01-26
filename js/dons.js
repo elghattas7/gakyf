@@ -349,8 +349,9 @@ const donsModule = {
                     <style>
                         table { border-collapse: collapse; width: 100%; }
                         th, td { padding: 4px; border: 1px solid #000; text-align: center; }
+                        tr { page-break-inside: avoid; break-inside: avoid; }
                     </style>
-                    <h2 style="text-align: center; color: #15803d; margin-bottom: 15px;">${title}</h2>
+                    <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px;">${title}</h2>
                     <table style="width: 100%; font-size: 8px;">
                     <thead>
                         <tr style="background-color: #dcfce7;">
@@ -382,7 +383,9 @@ const donsModule = {
 
             htmlTable += `</tbody></table></div>`;
 
-            await exportUtils.exportToPdf(htmlTable, `adhesions_${year}`, { orientation: 'landscape' });
+            const today = new Date();
+            const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+            await exportUtils.exportToPdf(htmlTable, `Bienfaiteurs_${year}_${dateStr}`, { orientation: 'landscape' });
 
         } catch (e) {
             console.error("Erreur PDF Matrix:", e);
