@@ -348,21 +348,24 @@ const donsModule = {
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: ${isArabic ? 'Amiri, Arial, sans-serif' : 'sans-serif'}; padding: 10px; font-weight: bold;">
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
-                        table { border-spacing: 0; width: 100%; page-break-inside: auto; table-layout: fixed; border: 1px solid #000; }
-                        th, td { padding: 4px; border: 1px solid #000; text-align: center; background-color: #fff; }
+                        table { border-collapse: separate; border-spacing: 0; width: 100%; page-break-inside: auto; table-layout: fixed; }
+                        th, td { padding: 6px 4px; border: 0.5px solid #d0d0d0; text-align: center; background-color: #fff; }
+                        th { font-weight: bold; font-size: 13px; background-color: #d4edda !important; }
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
-                        .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                        .month-col { width: auto; font-size: 12px; background-color: #dc2626; color: #fff; font-weight: bold; }
+                        tbody tr:nth-child(even) { background-color: #f0f9f4; }
+                        .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: ${isArabic ? 'right' : 'left'} !important; }
+                        .month-col { width: auto; font-size: 13px; background-color: #d4edda !important; color: #000; font-weight: bold; }
+                        .total-header { background-color: #d4edda !important; color: #dc2626 !important; font-weight: bold; font-size: 14px; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px; font-family: ${isArabic ? 'Amiri, serif' : 'sans-serif'};">${title}</h2>
-                    <table style="width: 100%; font-size: 10px;">
+                    <table style="width: 100%; font-size: 11px;">
                     <thead>
                         <tr>
-                            <th style="width: 3%; background-color: #f0f0f0;">#</th>
-                            <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000; background-color: #f0f0f0;">${i18n.t('donor_name')}</th>
+                            <th style="width: 3%;">#</th>
+                            <th class="donor-col" style="color: #8B0000;">${isArabic ? 'اسم المتبرع' : i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th class="month-col">${m}</th>`).join('')}
-                            <th style="width: 8%; color: red; font-size: 12px; background-color: #f0f0f0; font-weight: bold;">${i18n.t('total')}</th>
+                            <th class="total-header">${isArabic ? 'المجموع' : i18n.t('total')}</th>
                         </tr>
                     </thead>
                     <tbody>
