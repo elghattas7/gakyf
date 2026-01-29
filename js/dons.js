@@ -378,7 +378,7 @@ const donsModule = {
                 htmlTable += `
                     <tr>
                         <td>${row.index}</td>
-                        <td class="donor-col" style="font-size: 11px; color: #8B0000;">${row.name}</td>
+                        <td class="donor-col" style="font-size: 13px; color: #8B0000;">${row.name}</td>
                         ${row.months.map(m => {
                     const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' €') : '';
                     return `<td style="font-size: 11px;">${val}</td>`;
