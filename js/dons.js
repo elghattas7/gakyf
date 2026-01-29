@@ -364,7 +364,7 @@ const donsModule = {
                     <thead>
                         <tr>
                             <th style="width: 3%;">#</th>
-                            <th class="donor-col" style="color: #8B0000;">${isArabic ? 'اسم المتبرع' : i18n.t('donor_name')}</th>
+                            <th class="donor-col" style="color: #8B0000;">${isArabic ? 'اسم المحسن(ة)' : i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th class="month-col">${m}</th>`).join('')}
                             <th class="total-header">${isArabic ? 'المجموع' : i18n.t('total')}</th>
                         </tr>
