@@ -348,15 +348,16 @@ const donsModule = {
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: ${isArabic ? 'Amiri, Arial, sans-serif' : 'sans-serif'}; padding: 10px; font-weight: bold;">
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
-                        table { border-collapse: separate; border-spacing: 0; width: 100%; page-break-inside: auto; table-layout: fixed; }
-                        th, td { padding: 6px 4px; border: 0.5px solid #d0d0d0; text-align: center; background-color: #fff; }
+                        table { border-collapse: separate; border-spacing: 1px; width: 100%; page-break-inside: auto; table-layout: fixed; background-color: #e0e0e0; }
+                        th, td { padding: 6px 4px; border: none; text-align: center; background-color: #fff; }
                         th { font-weight: bold; font-size: 13px; background-color: #d4edda !important; }
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
-                        tbody tr:nth-child(even) { background-color: #f0f9f4; }
+                        tbody tr:nth-child(even) td { background-color: #f0f9f4; }
                         .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: ${isArabic ? 'right' : 'left'} !important; }
                         .month-col { width: auto; font-size: 13px; background-color: #d4edda !important; color: #000; font-weight: bold; }
                         .total-header { background-color: #d4edda !important; color: #dc2626 !important; font-weight: bold; font-size: 14px; }
+                        .total-cell { font-weight: bold; color: #dc2626; font-size: 14px; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px; font-family: ${isArabic ? 'Amiri, serif' : 'sans-serif'};">${title}</h2>
                     <table style="width: 100%; font-size: 11px;">
@@ -372,18 +373,17 @@ const donsModule = {
             `;
 
             matrixData.forEach((row, i) => {
-                const bg = i % 2 === 0 ? '#fff' : '#f0fdf4';
                 const totalDisplay = (row.total % 1 === 0 ? row.total : row.total.toFixed(2)) + ' €';
 
                 htmlTable += `
-                    <tr style="background-color: ${bg};">
+                    <tr>
                         <td>${row.index}</td>
-                        <td class="donor-col" style="text-align: ${isArabic ? 'right' : 'left'}; font-size: 12px; color: #8B0000;">${row.name}</td>
+                        <td class="donor-col" style="font-size: 11px; color: #8B0000;">${row.name}</td>
                         ${row.months.map(m => {
                     const val = m.v > 0 ? ((m.v % 1 === 0 ? m.v : m.v.toFixed(1)) + ' €') : '';
-                    return `<td class="month-col">${val}</td>`;
+                    return `<td style="font-size: 11px;">${val}</td>`;
                 }).join('')}
-                        <td style="font-weight: bold; color: red; font-size: 10px;">${totalDisplay}</td>
+                        <td class="total-cell">${totalDisplay}</td>
                     </tr>
                     `;
             });
