@@ -275,7 +275,7 @@ const donsModule = {
     async exportAdhesionMatrix(year) {
         try {
             utils.showLoader();
-            const title = `${i18n.t('montant_adhesion_year')} ${year}`;
+            const title = `${i18n.t('montant_adhesion_year')}  ${year}`;
             const isArabic = i18n.currentLang === 'ar';
 
             const targetYear = parseInt(year);
@@ -345,23 +345,24 @@ const donsModule = {
 
 
             let htmlTable = `
-                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; font-weight: bold;">
+                <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: ${isArabic ? 'Amiri, Arial, sans-serif' : 'sans-serif'}; padding: 10px; font-weight: bold;">
                     <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
                         table { border-spacing: 0; width: 100%; page-break-inside: auto; table-layout: fixed; border: 1px solid #000; }
                         th, td { padding: 4px; border: 1px solid #000; text-align: center; background-color: #fff; }
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
                         .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                        .month-col { width: auto; font-size: 10px; background-color: #dcfce7; }
+                        .month-col { width: auto; font-size: 12px; background-color: #dc2626; color: #fff; font-weight: bold; }
                     </style>
-                    <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px;">${title}</h2>
+                    <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px; font-family: ${isArabic ? 'Amiri, serif' : 'sans-serif'};">${title}</h2>
                     <table style="width: 100%; font-size: 10px;">
                     <thead>
-                        <tr style="background-color: #dcfce7;">
-                            <th style="width: 3%; background-color: #dcfce7;">#</th>
-                            <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000; background-color: #dcfce7;">${i18n.t('donor_name')}</th>
+                        <tr>
+                            <th style="width: 3%; background-color: #f0f0f0;">#</th>
+                            <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000; background-color: #f0f0f0;">${i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th class="month-col">${m}</th>`).join('')}
-                            <th style="width: 8%; color: red; font-size: 10px; background-color: #dcfce7;">${i18n.t('total')}</th>
+                            <th style="width: 8%; color: red; font-size: 12px; background-color: #f0f0f0; font-weight: bold;">${i18n.t('total')}</th>
                         </tr>
                     </thead>
                     <tbody>
