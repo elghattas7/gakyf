@@ -348,7 +348,7 @@ const donsModule = {
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; font-weight: bold;">
                     <style>
                         table { border-collapse: collapse; width: 100%; page-break-inside: auto; table-layout: fixed; }
-                        th, td { padding: 4px; border: 1px solid #000; text-align: center; }
+                        th, td { padding: 4px; border: 0.5px solid #ddd; text-align: center; background-color: #fff; }
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
                         .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -428,7 +428,7 @@ const donsModule = {
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px;">
                     <style>
                         table { border-collapse: collapse; width: 100%; }
-                        th, td { padding: 8px; border: 1px solid #c7d2fe; }
+                        th, td { padding: 8px; border: 0.5px solid #e5e7eb; background-color: #fff; }
                     </style>
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 5px;">${title}</h1>
