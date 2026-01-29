@@ -347,21 +347,21 @@ const donsModule = {
             let htmlTable = `
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 10px; font-weight: bold;">
                     <style>
-                        table { border-collapse: collapse; width: 100%; page-break-inside: auto; table-layout: fixed; }
-                        th, td { padding: 4px; border: 0.5px solid #ddd; text-align: center; background-color: #fff; }
+                        table { border-spacing: 0; width: 100%; page-break-inside: auto; table-layout: fixed; border: 1px solid #000; }
+                        th, td { padding: 4px; border: 1px solid #000; text-align: center; background-color: #fff; }
                         tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         tbody { page-break-inside: auto; }
                         .donor-col { width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                        .month-col { width: auto; font-size: 10px; }
+                        .month-col { width: auto; font-size: 10px; background-color: #dcfce7; }
                     </style>
                     <h2 style="text-align: center; color: #15803d; margin-bottom: 15px; font-size: 30px;">${title}</h2>
                     <table style="width: 100%; font-size: 10px;">
                     <thead>
                         <tr style="background-color: #dcfce7;">
-                            <th style="width: 3%;">#</th>
-                            <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000;">${i18n.t('donor_name')}</th>
+                            <th style="width: 3%; background-color: #dcfce7;">#</th>
+                            <th class="donor-col" style="text-align: left; font-size: 12px; color: #8B0000; background-color: #dcfce7;">${i18n.t('donor_name')}</th>
                             ${monthHeaders.map(m => `<th class="month-col">${m}</th>`).join('')}
-                            <th style="width: 8%; color: red; font-size: 10px;">${i18n.t('total')}</th>
+                            <th style="width: 8%; color: red; font-size: 10px; background-color: #dcfce7;">${i18n.t('total')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -427,8 +427,8 @@ const donsModule = {
             let htmlTable = `
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: sans-serif; padding: 20px;">
                     <style>
-                        table { border-collapse: collapse; width: 100%; }
-                        th, td { padding: 8px; border: 0.5px solid #e5e7eb; background-color: #fff; }
+                        table { border-spacing: 0; width: 100%; border: 1px solid #000; }
+                        th, td { padding: 8px; border: 1px solid #000; background-color: #fff; }
                     </style>
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h1 style="color: #4f46e5; font-size: 24px; margin-bottom: 5px;">${title}</h1>
